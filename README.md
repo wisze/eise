@@ -5,3 +5,5 @@ Every fifteen minutes cron starts a sall python script which computes where in t
 I call it **eise** after the builder of [the most beautiful planetarium in the world](https://www.planetarium-friesland.nl/). 
 
 [More on my wiki](http://wiki.wisze.net/doku.php/en/ruimte/eise), [meer op mijn wiki (nl)](http://wiki.wisze.net/doku.php/nl/ruimte/eise)
+
+![image of the eise planetmap on an e-ink on a raspberry pi zero](104664.jpg)
