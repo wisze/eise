@@ -12,7 +12,7 @@ import math
 magnitude = 3.0
 radius = 300
 margin=50
-fontsize=10
+fontsize=14
 d = draw.Drawing(2*radius+margin, 2*radius+margin, origin='center', displayInline=False)
 # Draw the horizon circle
 d.append(draw.Circle(0, 0, radius, fill='lightgrey', stroke_width=2, stroke='black'))
@@ -44,22 +44,22 @@ for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
         ix = radius*(90.0-alti)/90.0*math.sin(np.deg2rad(-azi))
         iy = radius*(90.0-alti)/90.0*math.cos(np.deg2rad(-azi))
         d.append(draw.Circle(ix, iy, magnitude-mag,
-            fill='white', stroke_width=0.5, stroke='black'))
+            fill='white', stroke_width=0.8, stroke='black'))
 
 # Teken planeten in
-planets = {'Zon':       'Sun',
-           'Maan':      'Moon',
-           'Mercurius': 'Mercury',
-           'Venus':     'Venus',
-           'Mars':      'Mars',
-           'Jupiter':   'Jupiter barycenter',
-           'Saturnus':  'Saturn barycenter',
-           'Uranus':    'Uranus barycenter',
-           'Neptunus':  'Neptune barycenter'}
+planets = {'☉': 'Sun',
+           '☾': 'Moon',
+           '☿': 'Mercury',
+           '♀': 'Venus',
+           '♂': 'Mars',
+           '♃': 'Jupiter barycenter',
+           '♄': 'Saturn barycenter',
+           '⛢': 'Uranus barycenter',
+           '♆': 'Neptune barycenter'}
+
 irise = 0
 for p in planets:
     print(p)
-
     # astrometric = earth.at(t0).observe(ephem[planets[p]])
     astrometric = amstercentric.at(t0).observe(ephem[planets[p]])
     ra, dec, distance = astrometric.radec()
@@ -67,10 +67,10 @@ for p in planets:
 
     print("  Declinatie: %6.2f Rechte klimming: %6.2f " % (dec.to(units.deg).value, ra.to(units.deg).value))
     if (alti.to(units.deg) > 0.0):
-        print ("hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
+        print ("  Hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
         ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
         iy = radius*(90.0-alti.to(units.deg).value)/90.0*math.cos(-azi.to(units.rad).value)
-        d.append(draw.Circle(ix, iy, 2, fill='darkred', stroke_width=1, stroke='darkred'))
+        d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='darkred'))
         d.append(draw.Text(p, fontsize, ix, iy, center=0.0, fill='black'))
     else:
         f = almanac.risings_and_settings(ephem, ephem[planets[p]], amsterdam)
@@ -88,7 +88,6 @@ maanverlicht  = int(100*(almanac.fraction_illuminated(ephem, 'Moon', t0)+0.05))
 venusverlicht = int(100*(almanac.fraction_illuminated(ephem, 'Venus', t0)+0.05))
 print('Maan '+str(maanverlicht)+'% verlicht')
 print('Venus '+str(venusverlicht)+'% verlicht')
-
 
 d.saveSvg('sterrenhemel.svg')
 d.savePng('sterrenhemel.png')
