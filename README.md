@@ -22,7 +22,7 @@ metafont.  I call it **eise** after the builder of [the most beautiful
 planetarium in the world](https://www.planetarium-friesland.nl/).
 
 ![image of the eise planetmap on an e-ink on a raspberry pi
- zero](https://github.com/wisze/eise/blob/master/1040664.jpg)
+ zero](https://github.com/wisze/eise/blob/master/20211019_171928.jpg)
 
 [More on my wiki](http://wiki.wisze.org/doku.php/en/ruimte/eise),
 [meer op mijn wiki(nl)](http://wiki.wisze.org/doku.php/nl/ruimte/eise)
@@ -32,3 +32,6 @@ planetarium in the world](https://www.planetarium-friesland.nl/).
 A similar script draws an svg file with a plot of the stars in the sky
 and the locations of the planets. I put the svg on a webserver to make
 it available over the net.
+
+![image of the eise planetmap, web version](https://github.com/wisze/eise/blob/master/2021-10-19.png)
+ 
