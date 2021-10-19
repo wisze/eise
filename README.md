@@ -24,8 +24,8 @@ planetarium in the world](https://www.planetarium-friesland.nl/).
 ![image of the eise planetmap on an e-ink on a raspberry pi
  zero](https://github.com/wisze/eise/blob/master/1040664.jpg)
 
-[More on my wiki](http://wiki.wisze.net/doku.php/en/ruimte/eise),
-[meer op mijn wiki(nl)](http://wiki.wisze.net/doku.php/nl/ruimte/eise)
+[More on my wiki](http://wiki.wisze.org/doku.php/en/ruimte/eise),
+[meer op mijn wiki(nl)](http://wiki.wisze.org/doku.php/nl/ruimte/eise)
 
 # Webeise
 
