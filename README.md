@@ -18,7 +18,9 @@ east (o=oost), south (z=zuid) and w for west. On the right side the
 time for which the is computed is shown and the illuminated part of
 the Moon (☾) and Venus (♀) in percent. For the planet symbols i used
 the [Tex cmastro](https://www.ctan.org/tex-archive/fonts/cmastro)
-metafont.  I call it **eise** after the builder of [the most beautiful
+metafont. I converted them into TTF, results are in the lib directory.
+
+I call it **eise** after the builder of [the most beautiful
 planetarium in the world](https://www.planetarium-friesland.nl/).
 
 ![image of the eise planetmap on an e-ink on a raspberry pi
