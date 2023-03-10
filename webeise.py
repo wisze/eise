@@ -4,7 +4,7 @@ from skyfield.data import hipparcos, mpc
 from astropy import units
 from datetime import datetime
 from pytz import timezone
-import drawSvg as draw
+import drawsvg as draw
 import numpy as np
 import math
 
@@ -15,7 +15,7 @@ radius = 300
 margin=50
 cometfont=8
 textfont=12
-planetfont=16
+planetfont=10
 d = draw.Drawing(2*radius+margin, 2*radius+margin, origin='center', displayInline=False)
 # Draw the horizon circle
 d.append(draw.Circle(0, 0, radius, fill='lightgrey', stroke_width=2, stroke='black'))
@@ -52,10 +52,12 @@ for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
 print(istars," sterren boven de horizon")
 
 # Teken planeten in
-planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
-           '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
-           '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
-
+# planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
+#            '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
+#            '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
+planets = {'Zon': 'Sun', 'Maan': 'Moon', 'mer': 'Mercury', 'ven': 'Venus', 'mar': 'Mars',
+           'jup': 'Jupiter barycenter', 'sat': 'Saturn barycenter',
+           'ura': 'Uranus barycenter',  'nep': 'Neptune barycenter'}
 
 # Comets!
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
@@ -92,7 +94,7 @@ for p in planets:
         ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
         iy = radius*(90.0-alti.to(units.deg).value)/90.0*math.cos(-azi.to(units.rad).value)
         d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='darkred'))
-        d.append(draw.Text(p, planetfont, ix, iy, center=0.0, fill='black'))
+        d.append(draw.Text(p, planetfont, ix, iy, center=0.0, fill='grey'))
     else:
         f = almanac.risings_and_settings(ephem, ephem[planets[p]], amsterdam)
         t, y = almanac.find_discrete(t0, t1, f)
@@ -110,5 +112,5 @@ venusverlicht = int(100*(almanac.fraction_illuminated(ephem, 'Venus', t0)+0.05))
 print('Maan '+str(maanverlicht)+'% verlicht')
 print('Venus '+str(venusverlicht)+'% verlicht')
 
-d.saveSvg('sterrenhemel.svg')
-d.savePng('sterrenhemel.png')
+d.save_svg('sterrenhemel.svg')
+d.save_png('sterrenhemel.png')
