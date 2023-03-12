@@ -45,7 +45,7 @@ alt, az, distance = astrometric.apparent().altaz()
 for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
     if (alti > 0.0):
         ix = radius*(90.0-alti)/90.0*math.sin(np.deg2rad(-azi))
-        iy = radius*(90.0-alti)/90.0*math.cos(np.deg2rad(-azi))
+        iy = radius*(alti-90.0)/90.0*math.cos(np.deg2rad(-azi))
         d.append(draw.Circle(ix, iy, magnitude-mag,
             fill='white', stroke_width=0.8, stroke='black'))
         istars = istars+1
@@ -80,7 +80,7 @@ for name in f:
        if (alti.to(units.deg) > 0.0):
            print (name," hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
            ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
-           iy = radius*(90.0-alti.to(units.deg).value)/90.0*math.cos(-azi.to(units.rad).value)
+           iy = radius*(alti.to(units.deg).value-90.0)/90.0*math.cos(-azi.to(units.rad).value)
            d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='blue'))
            d.append(draw.Text(name.strip(), cometfont, ix, iy, center=0.0, fill='grey'))
 
@@ -92,7 +92,7 @@ for p in planets:
     if (alti.to(units.deg) > 0.0):
         print ("  Hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
         ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
-        iy = radius*(90.0-alti.to(units.deg).value)/90.0*math.cos(-azi.to(units.rad).value)
+        iy = radius*(alti.to(units.deg).value-90.0)/90.0*math.cos(-azi.to(units.rad).value)
         d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='darkred'))
         d.append(draw.Text(p, planetfont, ix, iy, center=0.0, fill='grey'))
     else:
