@@ -4,7 +4,6 @@ from skyfield.data import hipparcos, mpc
 from astropy import units
 from datetime import datetime
 from pytz import timezone
-import drawSvg as draw
 import numpy as np
 import math
 

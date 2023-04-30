@@ -52,12 +52,12 @@ for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
 print(istars," sterren boven de horizon")
 
 # Teken planeten in
-# planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
-#            '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
-#            '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
-planets = {'Zon': 'Sun', 'Maan': 'Moon', 'mer': 'Mercury', 'ven': 'Venus', 'mar': 'Mars',
-           'jup': 'Jupiter barycenter', 'sat': 'Saturn barycenter',
-           'ura': 'Uranus barycenter',  'nep': 'Neptune barycenter'}
+planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
+           '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
+           '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
+# planets = {'Zon': 'Sun', 'Maan': 'Moon', 'mer': 'Mercury', 'ven': 'Venus', 'mar': 'Mars',
+#            'jup': 'Jupiter barycenter', 'sat': 'Saturn barycenter',
+#            'ura': 'Uranus barycenter',  'nep': 'Neptune barycenter'}
 
 # Comets!
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
