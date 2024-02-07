@@ -59,18 +59,16 @@ with load.open(hipparcos.URL) as f:
     df = hipparcos.load_dataframe(f)
 df = df[df['magnitude'] <= minimum_magnitude]
 bright_stars = Star.from_dataframe(df)
-print bright_stars
+print(bright_stars)
 astrometric = amstercentric.at(t0).observe(bright_stars)
 alt, az, distance = astrometric.apparent().altaz()
 for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
     if (alti > 0.0 and alti < maxalt):
-    	print ("Hoogte %6.2f, azimuth %6.2f, helderheid %6.2f"%(alti, azi, mag))
+        print ("Hoogte %6.2f, azimuth %6.2f, helderheid %6.2f"%(alti, azi, mag)) 
         ix = epd.height*azi/360.0
         iy = epd.width*(maxalt-alti)/maxalt
         size = (minimum_magnitude - mag)/2.0;
-        print((ix-size, iy-size, ix+size, iy+size))
-        # drawblack.point((ix-size, iy-size), fill = 0)
-        drawblack.ellipse((ix-size, iy-size, ix+size, iy+size), fill = 0)
+        drawblack.ellipse((ix-size, iy-size, ix+size, iy+size), outline=0, fill=0)
 
 # Teken planeten in
 print("Teken planeten")
@@ -94,7 +92,7 @@ symbols = {'Zon':       'S',
            'Neptunus':  '8'}
 irise = 0
 for p in planets:
-    print p
+    print(p)
 
     # astrometric = earth.at(t0).observe(ephem[planets[p]])
     astrometric = amstercentric.at(t0).observe(ephem[planets[p]])
@@ -115,7 +113,7 @@ for p in planets:
             if yi:
                 opkomst = trise.strftime('%H:%M')
                 print('  Opkomst om ' + opkomst)
-                drawred.text((2,irise*14), symbols[p], font = cmastro12, fill = 0)
+                drawblack.text((2,irise*14), symbols[p], font = cmastro12, fill = 0)
                 drawred.text((16,irise*14), opkomst, font = font12, fill = 0)
                 irise = irise+1
 
@@ -123,8 +121,8 @@ maanverlicht  = int(100*(almanac.fraction_illuminated(ephem, 'Moon', t0)+0.05))
 venusverlicht = int(100*(almanac.fraction_illuminated(ephem, 'Venus', t0)+0.05))
 print('Maan '+str(maanverlicht)+'% verlicht')
 print('Venus '+str(venusverlicht)+'% verlicht')
-drawred.text((epd.height-36,14), symbols['Maan'], font = cmastro12, fill = 0)
-drawred.text((epd.height-36,28), symbols['Venus'], font = cmastro12, fill = 0)
+drawblack.text((epd.height-36,14), symbols['Maan'], font = cmastro12, fill = 0)
+drawblack.text((epd.height-36,28), symbols['Venus'], font = cmastro12, fill = 0)
 drawred.text((epd.height-24,14), str(maanverlicht)+'%', font = font12, fill = 0)
 drawred.text((epd.height-24,28), str(venusverlicht)+'%', font = font12, fill = 0)
 
