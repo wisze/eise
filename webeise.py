@@ -11,11 +11,11 @@ import math
 # maxalt = 60.0
 magnitude = 4.0
 mindist=1.0
-radius = 300
+radius = 500
 margin=50
 cometfont=8
 textfont=12
-planetfont=10
+planetfont=12
 d = draw.Drawing(2*radius+margin, 2*radius+margin, origin='center', displayInline=False)
 # Draw the horizon circle
 d.append(draw.Circle(0, 0, radius, fill='lightgrey', stroke_width=2, stroke='black'))
@@ -49,52 +49,47 @@ for alti, azi, mag in zip(alt.degrees, az.degrees, df['magnitude']):
         d.append(draw.Circle(ix, iy, magnitude-mag,
             fill='white', stroke_width=0.8, stroke='black'))
         istars = istars+1
-print(istars," sterren boven de horizon")
-
-# Teken planeten in
-planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
-           '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
-           '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
-# planets = {'Zon': 'Sun', 'Maan': 'Moon', 'mer': 'Mercury', 'ven': 'Venus', 'mar': 'Mars',
-#            'jup': 'Jupiter barycenter', 'sat': 'Saturn barycenter',
-#            'ura': 'Uranus barycenter',  'nep': 'Neptune barycenter'}
+print(istars,"sterren boven de horizon")
 
 # Comets!
 from skyfield.constants import GM_SUN_Pitjeva_2005_km3_s2 as GM_SUN
 with load.open(mpc.COMET_URL) as f:
     comets = mpc.load_comets_dataframe(f)
-print('Found ',len(comets), ' comets')
+print(len(comets), "kometen gevonden")
 comets = (comets.sort_values('reference')
           .groupby('designation', as_index=False).last()
           .set_index('designation', drop=False))
 f = open("cometlist.txt",'r')
 for name in f:
-    print(name.strip())
     row = comets.loc[name.strip()]
     comet = sun + mpc.comet_orbit(row, ts, GM_SUN)
     ra, dec, distance = sun.at(t0).observe(comet).radec()
-    print(distance.au)
+    print(name.strip(),"at",distance.au,"AU")
     if (distance.au < mindist):
        astrometric = amstercentric.at(t0).observe(comet)
        alti, azi, distance = astrometric.apparent().altaz()
        if (alti.to(units.deg) > 0.0):
-           print (name," hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
+           print (name.strip(),"hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
            ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
            iy = radius*(alti.to(units.deg).value-90.0)/90.0*math.cos(-azi.to(units.rad).value)
            d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='blue'))
            d.append(draw.Text(name.strip(), cometfont, ix, iy, center=0.0, fill='grey'))
 
+# Teken planeten in
+planets = {'☉': 'Sun', '☾': 'Moon', '☿': 'Mercury', '♀': 'Venus', '♂': 'Mars',
+           '♃': 'Jupiter barycenter', '♄': 'Saturn barycenter',
+           '⛢': 'Uranus barycenter',  '♆': 'Neptune barycenter'}
+
 irise = 0
 for p in planets:
-    print(p)
     astrometric = amstercentric.at(t0).observe(ephem[planets[p]])
     alti, azi, distance = astrometric.apparent().altaz()
     if (alti.to(units.deg) > 0.0):
-        print ("  Hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
+        print (p,"hoogte: %6.2f, azimuth: %6.2f"%(alti.to(units.deg).value, azi.to(units.deg).value))
         ix = radius*(90.0-alti.to(units.deg).value)/90.0*math.sin(-azi.to(units.rad).value)
         iy = radius*(alti.to(units.deg).value-90.0)/90.0*math.cos(-azi.to(units.rad).value)
         d.append(draw.Circle(ix, iy, 1, fill='darkred', stroke_width=1, stroke='darkred'))
-        d.append(draw.Text(p, planetfont, ix, iy, center=0.0, fill='grey'))
+        d.append(draw.Text(p, planetfont, ix, iy, center=0.0, fill='black'))
     else:
         f = almanac.risings_and_settings(ephem, ephem[planets[p]], amsterdam)
         t, y = almanac.find_discrete(t0, t1, f)
@@ -102,15 +97,15 @@ for p in planets:
             trise = ti.utc_datetime().astimezone(cet).time()
             if yi:
                 opkomst = trise.strftime('%H:%M')
-                print('  Opkomst om ' + opkomst)
+                print(p,"opkomst om",opkomst)
                 d.append(draw.Text(p+" "+opkomst, textfont, -radius, 1.2*textfont*irise-radius,
                                    center=0.0, fill='black'))
                 irise = irise+1
 
 maanverlicht  = int(100*(almanac.fraction_illuminated(ephem, 'Moon', t0)+0.05))
 venusverlicht = int(100*(almanac.fraction_illuminated(ephem, 'Venus', t0)+0.05))
-print('Maan '+str(maanverlicht)+'% verlicht')
-print('Venus '+str(venusverlicht)+'% verlicht')
+print('Maan',str(maanverlicht)+'% verlicht')
+print('Venus',str(venusverlicht)+'% verlicht')
 
 d.save_svg('sterrenhemel.svg')
-d.save_png('sterrenhemel.png')
+# d.save_png('sterrenhemel.png') # planeetsymbolen komen niet door in png plot
