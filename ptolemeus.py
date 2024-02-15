@@ -23,17 +23,16 @@ def teken_planeet(afstand,phi,d,naam):
    mask = sfeer_gedraaid.split()[3]
    ikoon.paste(sfeer_gedraaid,(int(sfeer_x+x-lcenter+0.5),int(sfeer_y-y-lcenter+0.5)),mask)
 
-# display = auto()
-schwabacher = ImageFont.truetype("OfenbacherSchwabCAT.ttf",size=14)
+def teken_zodiac(afstand,phi):
+
+schwabacher = ImageFont.truetype("lib/OfenbacherSchwabCAT.ttf",size=14)
 ikoon = Image.new("RGB",(480,800), (250,250,150))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height - ikoon.width/2
 draw = ImageDraw.Draw(ikoon)
-# draw.arc([(5,5),(475,475)],0,360,(255,0,0),3)
 
 # Bepaal positie van de waarnemer
 ams = wgs84.latlon(52.375 * N, 4.900 * E)
-# ik = aarde + ams
 print (ams.latitude, ams.longitude)
 
 # Bepaal lokale tijd en bereken de sterrentijd (sideral time)
@@ -59,7 +58,6 @@ planets = {'Maan':      'Moon',
            'Saturnus':  'Saturn barycenter'}
 
 r = 50
-c = 240
 # Bereken posities van de planeten in het ecliptisch assenstelsel
 for p in planets:
    planeetpositie = aarde.at(t).observe(eph[planets[p]])
@@ -73,10 +71,10 @@ for p in planets:
       w = 15
    r += w+2;
    teken_planeet(r,azimut_equatoriaal,w,p)
-   # print (p,r,w)
-    
-ikoon.save('ikoon.png')
+
+ikoon.save('ptolemeus.png')
 ikoon.show()
 ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
+# display = auto()
 # display.set_image(ikoon_gedraaid)
 # display.show()
