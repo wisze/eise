@@ -12,7 +12,7 @@ def teken_planeet(afstand,phi,d,naam):
    x = (afstand-d/2)*math.sin(math.radians(phi))
    y = (afstand-d/2)*math.cos(math.radians(phi))
    print ("   Positie",x,y)
-   lcenter = 100
+   lcenter = 80
    sfeer = Image.new("RGBA", (lcenter*2,lcenter*2), (0, 0, 0, 0))
    label = ImageDraw.Draw(sfeer)
    draw.arc([(sfeer_x-afstand,sfeer_y-afstand),(sfeer_x+afstand,sfeer_y+afstand)],0,360,(50,50,250),d)
@@ -23,9 +23,30 @@ def teken_planeet(afstand,phi,d,naam):
    mask = sfeer_gedraaid.split()[3]
    ikoon.paste(sfeer_gedraaid,(int(sfeer_x+x-lcenter+0.5),int(sfeer_y-y-lcenter+0.5)),mask)
 
-def teken_zodiac(afstand,phi):
+# Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
+sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
+                  'Leeuw':'E','Maagd':'F','Weegschaal':'G','Kreeft':'H',
+                  'Boogschutter':'I','Steenbok':'J','Waterman':'K','Vissen':'L'}   
+def teken_zodiac(afstand,phi,d):
+   sb = 100 # 100 pixels voor sterrenbeeld
+   isterrenbeeld = 1
+   draw.arc([(sfeer_x-afstand,sfeer_y-afstand),(sfeer_x+afstand,sfeer_y+afstand)],0,360,(100,100,250),d)
+   for s in sterrenbeelden:
+      hoeks = phi - isterrenbeeld*30.0
+      x = (afstand-d/2)*math.sin(math.radians(hoeks))
+      y = (afstand-d/2)*math.cos(math.radians(hoeks))
+      print (s,hoeks,x,y)
+      sterrenbeeld = Image.new("RGBA", (sb,sb), (0, 0, 0, 0))
+      teken = ImageDraw.Draw(sterrenbeeld)
+      teken.text((sb/2,sb/2), sterrenbeelden[s], anchor="mm", fill=(0,0,0), font=astrologicus)
+      # sterrenbeeld.show()
+      sterrenbeeld_gedraaid = sterrenbeeld.rotate((0.0-hoeks),resample=Image.BILINEAR,expand=False,center=(sb/2,sb/2))
+      mask = sterrenbeeld_gedraaid.split()[3]
+      ikoon.paste(sterrenbeeld_gedraaid,(int(sfeer_x+x-sb/2+0.5),int(sfeer_y-y-sb/2+0.5)),mask)
+      isterrenbeeld += 1
 
 schwabacher = ImageFont.truetype("lib/OfenbacherSchwabCAT.ttf",size=14)
+astrologicus = ImageFont.truetype("lib/Astrologicus.ttf",size=36)
 ikoon = Image.new("RGB",(480,800), (250,250,150))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height - ikoon.width/2
@@ -71,7 +92,10 @@ for p in planets:
       w = 15
    r += w+2;
    teken_planeet(r,azimut_equatoriaal,w,p)
-
+w = 30
+r += w+2
+teken_zodiac(r,hoek_lentepunt,w)
+   
 ikoon.save('ptolemeus.png')
 ikoon.show()
 ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
