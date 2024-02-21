@@ -1,5 +1,7 @@
 # Eise
 
+[Eise]((README.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
+
 In the city you do not see the night sky very well. Only the brightest
 stars are visible. And because you do not see the whole sky from
 between the buildings you have little reference to know what you are
@@ -28,12 +30,3 @@ planetarium in the world](https://www.planetarium-friesland.nl/).
 
 [More on my wiki](http://wiki.wisze.org/doku.php/en/ruimte/eise),
 [meer op mijn wiki(nl)](http://wiki.wisze.org/doku.php/nl/ruimte/eise)
-
-# Webeise
-
-A similar script draws an svg file with a plot of the stars in the sky
-and the locations of the planets. I put the svg on a webserver to make
-it available over the net.
-
-![image of the eise planetmap, web version](https://github.com/wisze/eise/blob/master/2021-10-19.png)
- 
