@@ -1,6 +1,6 @@
 # Eise
 
-[Eise]((README.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
+[Eise](README.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
 
 In the city you do not see the night sky very well. Only the brightest
 stars are visible. And because you do not see the whole sky from
