@@ -1,6 +1,6 @@
 # Ptolemeus
 
-[Eise](README.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
+[Eise](eise.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
 
 In het middeleeuwse beeld van het heelal staat de Aarde onwrikbaar in het midden, 
 omgeven door _sferen_ waarin Zon, Maan en de planeten rond de Aarde draaien. Voor 
