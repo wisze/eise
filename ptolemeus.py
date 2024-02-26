@@ -86,7 +86,6 @@ sfeer_y = ikoon.height - ikoon.width/2
 draw = ImageDraw.Draw(ikoon)
 
 # Bepaal positie van de waarnemer
-ams = wgs84.latlon(52.375 * N, 4.900 * E)
 print (ams.latitude, ams.longitude)
 
 # Bepaal lokale tijd en bereken de sterrentijd (sideral time)
@@ -115,12 +114,12 @@ for p in planets:
    print (p, constellation_at(planeetpositie), lon.degrees, azimut_equatoriaal)
    # Teken de cirkel met planeet
    if (p == 'Zon' or p == 'Maan'):
-      w = 35
+      w = 36
    else:
       w = 16
    r += w+1;
    teken_planeet(r,azimut_equatoriaal,w,p)
-w = 35
+w = 36
 r += w+1
 teken_dierenriem(r,hoek_lentepunt,w)
    
