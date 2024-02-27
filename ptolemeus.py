@@ -86,6 +86,7 @@ sfeer_y = ikoon.height - ikoon.width/2
 draw = ImageDraw.Draw(ikoon)
 
 # Bepaal positie van de waarnemer
+ams = wgs84.latlon(52.375 * N, 4.900 * E)
 print (ams.latitude, ams.longitude)
 
 # Bepaal lokale tijd en bereken de sterrentijd (sideral time)
@@ -124,8 +125,8 @@ r += w+1
 teken_dierenriem(r,hoek_lentepunt,w)
    
 ikoon.save('ptolemeus.png')
-ikoon.show()
-ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
+# ikoon.show()
+# ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
 # display = auto()
 # display.set_image(ikoon_gedraaid)
 # display.show()
