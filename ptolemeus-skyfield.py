@@ -9,8 +9,7 @@ from skyfield.api import position_of_radec, load_constellation_map
 from skyfield.framelib import ecliptic_frame
 
 # Fonts
-# schwabacher = ImageFont.truetype("lib/OfenbacherSchwabCAT.ttf",size=20)
-schwabacher = ImageFont.truetype("lib/yswab.otf",size=20)
+schwabacher = ImageFont.truetype("lib/OfenbacherSchwabCAT.ttf",size=20)
 astrologicus = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 # Lijstje planeten, Uranus en Neptunus bestaan nog niet
 planets = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus',
@@ -81,33 +80,39 @@ def teken_dierenriem(straal,phi,d):
                                          int(sfeer_y-y-sb/2)),mask)
       isterrenbeeld += 1
 
-# Bereken de locatie van een planeet ten opzichte van de aarde
-# met Ptolemaeaus epicykels, geeft de hoek ten opzichte van de waarnemer
-def epicykel(deferent,epicyckel,eccenter,equant):
-   return hoek
-
-# Keplerbaan geeft de hoek ten opzichte van het lentepunt
-def keplerbaan():
-   return hoek
-
 ikoon = Image.new("RGB",(480,800), (255,255,255))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height - ikoon.width/2
 draw = ImageDraw.Draw(ikoon)
 
-# Bepaal lokale tijd en lokale sterrentijd
-from datetime import datetime
-tijd = datetime.now()
-lokaletijd = tijd + 4.900/360*24
-sterretijd = lokaletijd + dagensindslente*#iets
-hoeklentepunt = sterrentijd/24*360
+# Bepaal positie van de waarnemer
+ams = wgs84.latlon(52.375 * N, 4.900 * E)
+print (ams.latitude, ams.longitude)
+
+# Bepaal lokale tijd en bereken de sterrentijd (sideral time)
+ts = load.timescale()
+t = ts.now()
+st = t.gast+ams.longitude.degrees/360*24
+hoek_lentepunt = st/24*360
+print ('tijd', t, hoek_lentepunt)
+# Check, waar staat het lentepunt?
+lentepunt = position_of_radec(0,0)
+constellation_at = load_constellation_map()
+print ('lentepunt staat in', constellation_at(lentepunt))
+
+# Laad de baangegevens van de planeten, JPL ephemeris DE421
+eph = load('de421.bsp')
+aarde = eph['earth']
 
 r = 38
 teken_aarde(r)
 r += 1
-# Bereken posities van de planeten en teken de sfeer in
+# Bereken posities van de planeten in het ecliptisch assenstelsel
 for p in planets:
-   azimut = epicykel() + hoeklentepunt;
+   planeetpositie = aarde.at(t).observe(eph[planets[p]])
+   lat, lon, d = planeetpositie.frame_latlon(ecliptic_frame)
+   azimut_equatoriaal = (hoek_lentepunt-lon.degrees)%360
+   print (p, constellation_at(planeetpositie), lon.degrees, azimut_equatoriaal)
    # Teken de cirkel met planeet
    if (p == 'Zon' or p == 'Maan'):
       w = 36
@@ -115,7 +120,6 @@ for p in planets:
       w = 16
    r += w+1;
    teken_planeet(r,azimut_equatoriaal,w,p)
-# Teken de dierenriem
 w = 36
 r += w+1
 teken_dierenriem(r,hoek_lentepunt,w)
