@@ -83,6 +83,11 @@ def teken_dierenriem(straal,phi,d):
 
 # Bereken de locatie van een planeet ten opzichte van de aarde
 # met Ptolemaeaus epicykels, geeft de hoek ten opzichte van de waarnemer
+#
+# De deferent is de hoofdcirkel, de epicykel is de kleine cirkel daarop
+# De eccenter is het middelpunt van de cirkel, de equant is het punt waaromheen
+# het middelpunt van de epicykel op de deferent met constante hoeksnelheid beweegt.
+# Aarde, eccenter en equant liggen op 1 lijn.
 def epicykel(deferent,epicyckel,eccenter,equant):
    return hoek
 
