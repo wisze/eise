@@ -21,4 +21,7 @@ Het scherm laat de planeten zien in hun sferen zoals deze rond de Aarde
 bewegen. De buitenste sfeer is de sfeer van de sterren, hier aangegeven met 
 de tekens van de Dierenriem.
 
+De posities van de planeten aan de hemel wordt berekend met Ptolemeus'
+epicirkels.
+
 ![Beeld van de planeten in hun sferen](ptolemeus.png)

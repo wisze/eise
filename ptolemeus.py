@@ -13,9 +13,9 @@ from skyfield.framelib import ecliptic_frame
 schwabacher = ImageFont.truetype("lib/yswab.otf",size=20)
 astrologicus = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 # Lijstje planeten, Uranus en Neptunus bestaan nog niet
-planets = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus',
-           'Zon': 'Sun', 'Mars': 'Mars',
-           'Jupiter': 'Jupiter barycenter', 'Saturnus': 'Saturn barycenter'}
+planeten = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus',
+            'Zon': 'Sun', 'Mars': 'Mars',
+            'Jupiter': 'Jupiter barycenter', 'Saturnus': 'Saturn barycenter'}
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
 sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
                   'Leeuw':'E','Maagd':'F','Weegschaal':'G','Kreeft':'H',
@@ -81,49 +81,100 @@ def teken_dierenriem(straal,phi,d):
                                          int(sfeer_y-y-sb/2)),mask)
       isterrenbeeld += 1
 
-# Bereken de locatie van een planeet ten opzichte van de aarde
-# met Ptolemaeaus epicykels, geeft de hoek ten opzichte van de waarnemer
+# Epicykel geeft de ware anomalie, de hoek van een planeet ten opzichte van het
+# lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
 # De deferent is de hoofdcirkel, de epicykel is de kleine cirkel daarop
 # De eccenter is het middelpunt van de cirkel, de equant is het punt waaromheen
 # het middelpunt van de epicykel op de deferent met constante hoeksnelheid beweegt.
 # Aarde, eccenter en equant liggen op 1 lijn.
 def epicykel(deferent,epicyckel,eccenter,equant):
-   return hoek
+   # Hoek vanuit de equans
+   equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
+   equansx = deferent * cos(equansanomalie)
+   equansy = deferent * sin(equansanomalie)
+   # Hoek vanuit de Aarde
+   wareanomalie = arctan(equansy/(equansx-2*equans))
+   schijnbareanomalie = wareanomalie + lengteperiapsis
+   return schijnbareanomalie
 
-# Keplerbaan geeft de hoek ten opzichte van het lentepunt
-def keplerbaan():
-   return hoek
+# Keplerbaan geeft de ware anomalie, de hoek van een planeet ten opzichte van het
+# lentepunt gezien vanuit de Zon.
+def keplerbaan(tijd):
+   return wareanomalie
+
+# Metonische cyclus, 19 jaar komt overeen met 235 maanden
+def meton(tijd):
+   return metonfractie
+
+# Saros periode, na een periode 223 maanden, ongeveer 18 jaar, herhalen eclipses
+# 
+# Een Saros serie is een reeks bijna gelijke eclipses
+def saros(tijd):
+   return sarosfractie
 
 ikoon = Image.new("RGB",(480,800), (255,255,255))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height - ikoon.width/2
 draw = ImageDraw.Draw(ikoon)
 
-# Bepaal lokale tijd en lokale sterrentijd
+# Kalender dingen
+import time
 from datetime import datetime
-tijd = datetime.now()
-lokaletijd = tijd + 4.900/360*24
-sterretijd = lokaletijd + dagensindslente*#iets
-hoeklentepunt = sterrentijd/24*360
+
+# Juliaanse datum, met een fractie voor de dag.
+# def julian(date,time):
+#    a = (14 - date.month) // 12
+#    y = date.year + 4800 - a
+#    m = date.month + 12 * a - 3
+#    julian_date = date.day + ((153 * m + 2) // 5) + 365 * y + y // 4 - y // 100 + y // 400 - 32045
+#    julian_date = julian_date + time / 24.0
+#    return julian_date
+
+
+# Laatste lenteequinox, ieder tropisch jaar begint 6 uur later,
+# en 24 uur eerder (min 6) in een schrikkeljaar
+tropischjaar = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
+# lenteequinox = # in 2000 op 20 maart om 8:35, in 2025 op 20 maart 10:01
+siderischjaar =  365.256363004 # Ongeveer 20 minuten langer dan tropisch jaar, ook 2000.0
+lengte020 = 4.9
+
+# Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
+# datum = datetime.now()
+nu = time.time() / 86400  # nu, in dagen
+dagen = nu // 1 + 2440587 # dagen, juliaanse datum
+tijd  = nu % 1 # Fractie van de dag
+print('Epoch in dagen',nu)
+print('JD', dagen)
+print('GMT          ', int(24*tijd//1), int((24*60*tijd)%60), (24*3600*tijd)%60)
+
+# Siderische tijd foezelfactor
+epochsiderisch = 3.0405 / 24.0
+GMST = tijd * (tropischjaar/(tropischjaar-1.0)) + epochsiderisch
+print('GMT siderisch',int(24*GMST//1), int((24*60*GMST)%60), (24*3600*GMST)%60)
+
+lokaletijd = tijd + lengte020/360.0 # Correctie voor locatie NL
+print('Lokale zonnetijd',int(24*lokaletijd//1), int((24*60*lokaletijd)%60), (24*3600*lokaletijd)%60)
+LMST =  lokaletijd * (tropischjaar/(tropischjaar-1.0)) + epochsiderisch
+print('Lokaal siderisch', int(24*LMST//1), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 r = 38
 teken_aarde(r)
 r += 1
 # Bereken posities van de planeten en teken de sfeer in
-for p in planets:
-   azimut = epicykel() + hoeklentepunt;
+for p in planeten:
+   # azimut = epicykel() + hoeklentepunt;
    # Teken de cirkel met planeet
    if (p == 'Zon' or p == 'Maan'):
       w = 36
    else:
       w = 16
    r += w+1;
-   teken_planeet(r,azimut_equatoriaal,w,p)
+   # teken_planeet(r,azimut_equatoriaal,w,p)
 # Teken de dierenriem
 w = 36
 r += w+1
-teken_dierenriem(r,hoek_lentepunt,w)
+# teken_dierenriem(r,hoek_lentepunt,w)
    
 ikoon.save('ptolemeus.png')
 # ikoon.show()

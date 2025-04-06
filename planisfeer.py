@@ -21,7 +21,7 @@ d = draw.Drawing(2*radius+margin, 2*radius+margin, origin='center', displayInlin
 d.append(draw.Circle(0, 0, radius, fill='lightgrey', stroke_width=2, stroke='black'))
 
 ts = load.timescale()
-ephem = load('de421.bsp')
+ephem = load('https://raw.githubusercontent.com/skyfielders/python-skyfield/master/ci/de421.bsp')
 cet = timezone('CET')
 
 sun, moon, earth = ephem['sun'], ephem['moon'], ephem['earth']
