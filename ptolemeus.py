@@ -137,15 +137,15 @@ print('Epoch in dagen',nu)
 print('JD', dagen)
 print('GMT          ', int(24*tijd), int((24*60*tijd)%60), (24*3600*tijd)%60)
 
-# Siderische tijd foezelfactor
-epochsiderisch = 3.091 / 24.0
-GMST = ( nu * siderischjaar/(siderischjaar-1.0) + epochsiderisch ) % 1
+# Op 1/1/1970 was GMST 6 40 55 = 6,681944444
+epochsiderisch = 6.681944444 / 24.0
+GMST = ( nu * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
 print('GMT siderisch',int(24*GMST), int((24*60*GMST)%60), (24*3600*GMST)%60)
 
 # Lokale tijd en sterretijd in fracties van de dag
 lokaletijd = ( nu + lengte020/360.0 ) % 1 # Correctie voor locatie NL
 print('Lokale zonnetijd',int(24*lokaletijd), int((24*60*lokaletijd)%60), (24*3600*lokaletijd)%60)
-LMST = ( ( nu + lengte020/360.0 ) * siderischjaar/(siderischjaar-1.0) + epochsiderisch ) % 1
+LMST = ( ( nu + lengte020/360.0 ) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
 print('Lokaal siderisch', int(24*LMST), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 # Begin met tekenen
