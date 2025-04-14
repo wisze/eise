@@ -2,9 +2,12 @@
 
 [Eise](eise.md) [Ptolemeus](ptolemeus.md) [Planisfeer](planisfeer.md)
 
-A similar script draws an svg file with a plot of the stars in the sky
-and the locations of the planets. I put the svg on a webserver to make
-it available over the net.
+Script om de avondhemel te tekenen voor een tijd en plaats. Het is
+afgeleid van de eise script. Alleen tekent dit de hele hemel. De
+dischtbijzijnde kometen worden ook ingetekend. Deze worden uitgelezen
+uit een file waarin de locaties van de dischtsbijzijnde kometen staan.
 
-![image of the eise planisfeer map, web version](planisfeer.svg)
+Alles wordt als svg file uitgevoerd.
+
+![afbeelding van de eise planisfeer, webversie](planisfeer.svg)
  
