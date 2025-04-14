@@ -1,4 +1,4 @@
-import sys, math, time
+import sys, math, time, csv
 # from inky.auto import auto
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime, timezone
@@ -7,8 +7,7 @@ from skyfield.api import load, wgs84, N, E, W, S
 from skyfield.api import position_of_radec, load_constellation_map
 from skyfield.framelib import ecliptic_frame
 
-# Verschillende konstanten
-# Wat is een jaar?
+# Verschillende konstanten voor jaar en maand
 tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
 siderischjaar = 365.256363004 # Ongeveer 20 minuten langer dan tropisch jaar, ook 2000.0
 tropischemaand  = 27.32158 # Tijd tussen doorgangen van de Maan door de ecliptica
@@ -19,14 +18,27 @@ draconitischemaand = 27,21222 # Tijd tussen twee knopendoorgangen
 lengte020 = 4.9 # Graden oosterlengte
 tweepi    = 6.28
 
+# Lees baanelementen uit csv
+planeet = {}
+ip = 0
+with open('orbits.csv', 'r') as orbitfile:
+    csv_reader = csv.DictReader(orbitfile)
+    for orbit in csv_reader:
+       planeet[ip] = {}
+       planeet[ip]['naam'] = orbit['naam'].strip()
+       planeet[ip]['a'] = float(orbit['a'])
+       planeet[ip]['e'] = float(orbit['e'])
+       planeet[ip]['T'] = float(orbit['T'])
+       planeet[ip]['lengteperi'] = float(orbit['l_peri'])
+       planeet[ip]['epochperi']  = float(orbit['t_peri'])
+       ip += 1
+print(ip,' planeten gevonden')
+       
 # Fonts
 schwabacher = ImageFont.truetype("lib/yswab.otf",size=20)
+kapitaal    = ImageFont.truetype("lib/Yinit.otf",size=80)
 astrologicus = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 
-# Lijstje planeten, Uranus en Neptunus bestaan nog niet
-planeten = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus',
-            'Zon': 'Sun', 'Mars': 'Mars',
-            'Jupiter': 'Jupiter barycenter', 'Saturnus': 'Saturn barycenter'}
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
 sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
                   'Leeuw':'E','Maagd':'F','Weegschaal':'G','Kreeft':'H',
@@ -95,23 +107,25 @@ def teken_dierenriem(straal,phi,d):
 # Epicykel geeft de ware anomalie, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
-# De deferent is de hoofdcirkel, de epicykel is de kleine cirkel daarop
-# De eccenter is het middelpunt van de cirkel, de equant is het punt waaromheen
-# het middelpunt van de epicykel op de deferent met constante hoeksnelheid beweegt.
-# Aarde, eccenter en equant liggen op 1 lijn.
-def epicykel(deferent,epicyckel,eccenter,equant):
-   # Hoek vanuit de equans
-   equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-   equansx = deferent * cos(equansanomalie)
-   equansy = deferent * sin(equansanomalie)
-   # Hoek vanuit de Aarde
-   wareanomalie = arctan(equansy/(equansx-2*equans))
-   schijnbareanomalie = wareanomalie + lengteperiapsis
-   return schijnbareanomalie
+# De deferent is het middelpunt van de cirkelbaan
+# De planeet beweegt met constante hoeksnelheid rond de equans
+# Aarde, deferent en equans liggen op 1 lijn.
+def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis):
+    # De deferent is het middelpunt van de cirkelbaan
+    deferent = straal * excentriciteit
+    equans = 2 * deferent
+    # Anomalie gezien van de equans is een lineaire functie van de tijd
+    equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
+    equansx = straal * math.cos(equansanomalie) - deferent
+    equansy = straal * math.sin(equansanomalie)
+    # Hoek vanuit de Aarde
+    wareanomalie = math.atan2(equansy, equansx)
+    schijnbareanomalie = wareanomalie + lengteperiapsis
+    return schijnbareanomalie
 
-# De Zon en de Maan beschijven een cirkalbaan om de Aarde
-def cirkelbaan(t,T):
-   schijnbareanomalie = ( t / T ) % 360.0
+# De Zon en de Maan beschijven een cirkelbaan om de Aarde
+def cirkelbaan(tijd,omlooptijd):
+   schijnbareanomalie = ( tijd / omlooptijd ) % 360.0
    return schijnbareanomalie
 
 # Keplerbaan geeft de ware anomalie, de hoek van een planeet ten opzichte van het
@@ -158,21 +172,28 @@ r = 38
 teken_aarde(r)
 r += 1
 # Bereken posities van de planeten en teken de sfeer in
-for p in planeten:
+for ip in planeet:
    azimut = 0.0
    # azimut = epicykel() + hoeklentepunt;
    # Teken de cirkel met planeet
-   
-   if (p == 'Zon'):
-      azimut = cirkelbaan(tijd,siderischjaar) + LMST*360.0
-      w = 36
-   elif (p == 'Maan'):
-      azimut = cirkelbaan(tijd,synodischemaand) + LMST*360.0
-      w = 36
+   naam = planeet[ip]['naam']
+   print(ip,naam)
+         
+   if (naam == 'Zon'):
+       azimut = cirkelbaan(tijd,siderischjaar) + LMST*360.0
+       w = 36
+       print('Zon op ',azimut)
+   elif (naam == 'Maan'):
+       azimut = cirkelbaan(tijd,synodischemaand) + LMST*360.0
+       w = 36
+       print('Maan op ',azimut)
    else:
-      w = 16
+       azimut = epicykel(tijd,planeet[ip]['T'],planeet[ip]['a'],
+                         planeet[ip]['e'],planeet[ip]['lengteperi'],planeet[ip]['epochperi'])
+       w = 16
    r += w+1;
-   teken_planeet(r,azimut,w,p)
+   teken_planeet(r,azimut,w,naam)
+
 # Teken de dierenriem
 w = 36
 r += w+1
