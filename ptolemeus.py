@@ -35,9 +35,10 @@ with open('orbits.csv', 'r') as orbitfile:
 print(ip,' planeten gevonden')
        
 # Fonts
-schwabacher = ImageFont.truetype("lib/yswab.otf",size=20)
-kapitaal    = ImageFont.truetype("lib/Yinit.otf",size=80)
-astrologicus = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
+schwabacher   = ImageFont.truetype("lib/yswab.otf",size=20)
+schwabacher28 = ImageFont.truetype("lib/yswab.otf",size=28)
+kapitaal      = ImageFont.truetype("lib/Yinit.otf",size=80)
+astrologicus  = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
 sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
@@ -82,7 +83,9 @@ def teken_tekst(straal,hoek,d,tekst):
       ikoon.paste(lbeeld_gedraaid,(int(sfeer_x+x-lbox/2),
                                    int(sfeer_y-y-lbox/2)),mask)
       h += 360.0*1.2*lt/omtrek
-  
+
+# Teken de dierenriem. Afstand tussen sterrenbeelden is 30 graden.
+# Alle sterrenbeelden worden gedraaid en in de bovenste sfeer getekend.
 def teken_dierenriem(straal,phi,d):
    sb = 100 # 100 pixels voor sterrenbeeld
    isterrenbeeld = 1
@@ -104,6 +107,13 @@ def teken_dierenriem(straal,phi,d):
                                          int(sfeer_y-y-sb/2)),mask)
       isterrenbeeld += 1
 
+def beschrijving(tekst):
+    tekstblok = Image.new("RGBA", (400,400), (0, 0, 0, 0))
+    zin = ImageDraw.Draw(tekstblok)
+    zin.text((200, 80), tekst, anchor="ms", fill=(0,0,0), font=schwabacher28)
+    mask = tekstblok.split()[3]
+    ikoon.paste(tekstblok,(0,0,400,400),mask)
+   
 # Epicykel geeft de ware anomalie, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
@@ -198,7 +208,8 @@ for ip in planeet:
 w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
-   
+beschrijving("De planeten volgens Ptolemeus")
+
 ikoon.save('ptolemeus.png')
 ikoon.show()
 # ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
