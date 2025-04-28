@@ -128,6 +128,9 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
     equansx = straal * math.cos(equansanomalie) - deferent
     equansy = straal * math.sin(equansanomalie)
+    # De epicykel, de cirkel op de cirkel
+    equansx = equansx + straalaarde * math.cos(tijd / siderischjaar)
+    equansy = equansy + straalaarde * math.sin(tijd / siderischjaar)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx)
     schijnbareanomalie = wareanomalie + lengteperiapsis
@@ -181,6 +184,9 @@ draw = ImageDraw.Draw(ikoon)
 r = 38
 teken_aarde(r)
 r += 1
+
+# De straal van de baan van de Zon moet eigenlijk netjes uit de baanelementen gehaald worden
+straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
 # Bereken posities van de planeten en teken de sfeer in
 for ip in planeet:
    azimut = 0.0
