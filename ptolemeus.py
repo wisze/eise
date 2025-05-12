@@ -129,8 +129,10 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     equansx = straal * math.cos(equansanomalie) - deferent
     equansy = straal * math.sin(equansanomalie)
     # De epicykel, de cirkel op de cirkel
-    equansx = equansx + straalaarde * math.cos(tijd / siderischjaar)
-    equansy = equansy + straalaarde * math.sin(tijd / siderischjaar)
+    epianomalie = (tijd)/siderischjaar*tweepi
+    straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
+    equansx = equansx - straalaarde * math.cos(epianomalie)
+    equansy = equansy - straalaarde * math.sin(epianomalie)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx)
     schijnbareanomalie = wareanomalie + lengteperiapsis
