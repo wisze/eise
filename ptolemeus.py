@@ -121,7 +121,6 @@ def beschrijving(tekst):
 # De planeet beweegt met constante hoeksnelheid rond de equans
 # Aarde, deferent en equans liggen op 1 lijn.
 def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis):
-    # De deferent is het middelpunt van de cirkelbaan
     deferent = straal * excentriciteit
     equans = 2 * deferent
     # Anomalie gezien van de equans is een lineaire functie van de tijd
@@ -141,6 +140,7 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
 def cirkelbaan(tijd,omlooptijd):
    schijnbareanomalie = ( tijd / omlooptijd ) % 360.0
+   print('Schijnbare anomalie',schijnbareanomalie)
    return schijnbareanomalie
 
 # Keplerbaan geeft de ware anomalie, de hoek van een planeet ten opzichte van het
@@ -149,12 +149,13 @@ def keplerbaan(tijd):
    return wareanomalie
 
 # Metonische cyclus, 19 jaar komt overeen met 235 maanden
+# Geeft het gouden getal 
 def meton(tijd):
    return metonfractie
 
-# Saros periode, na een periode 223 maanden, ongeveer 18 jaar, herhalen eclipses
-# 
-# Een Saros serie is een reeks bijna gelijke eclipses
+# Een Saros serie is een reeks bijna gelijke eclipses.
+# Na een periode 223 maanden, ongeveer 18 jaar, herhalen eclipses.
+# 6585,3 dagen
 def saros(tijd):
    return sarosfractie
 
@@ -198,11 +199,11 @@ for ip in planeet:
    print(ip,naam)
          
    if (naam == 'Zon'):
-       azimut = cirkelbaan(tijd,siderischjaar) + LMST*360.0
+       azimut = cirkelbaan(nu,siderischjaar) + LMST*360.0
        w = 36
        print('Zon op ',azimut)
    elif (naam == 'Maan'):
-       azimut = cirkelbaan(tijd,synodischemaand) + LMST*360.0
+       azimut = cirkelbaan(nu,synodischemaand) + LMST*360.0
        w = 36
        print('Maan op ',azimut)
    else:

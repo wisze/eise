@@ -125,8 +125,8 @@ r += w+1
 teken_dierenriem(r,hoek_lentepunt,w)
    
 ikoon.save('ptolemeus.png')
-# ikoon.show()
-# ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
+ikoon.show()
+ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
 # display = auto()
 # display.set_image(ikoon_gedraaid)
 # display.show()
