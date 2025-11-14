@@ -32,7 +32,7 @@ with open('orbits.csv', 'r') as orbitfile:
        planeet[ip]['lengteperi'] = float(orbit['l_peri'])
        planeet[ip]['epochperi']  = float(orbit['t_peri'])
        ip += 1
-print(ip,' planeten gevonden')
+print(ip,' planeten in orbit file')
        
 # Fonts
 schwabacher   = ImageFont.truetype("lib/yswab.otf",size=20)
@@ -95,7 +95,7 @@ def teken_dierenriem(straal,phi,d):
       hoeks = phi - isterrenbeeld*30.0
       x = (straal-d/2-4)*math.sin(math.radians(hoeks))
       y = (straal-d/2-4)*math.cos(math.radians(hoeks))
-      print (s,hoeks//1)
+      # print (s,hoeks//1)
       sterrenbeeld = Image.new("RGBA", (sb,sb), (0, 0, 0, 0))
       teken = ImageDraw.Draw(sterrenbeeld)
       teken.text((sb/2,sb/2), sterrenbeelden[s],
@@ -161,7 +161,7 @@ def saros(tijd):
 
 # Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
 nu = time.time() / 86400  # nu, in dagen
-dagen = nu // 1 + 2440587 # dagen, juliaanse datum
+dagen = nu + 2440587.45833 # dagen, juliaanse datum
 tijd  = nu % 1 # Fractie van de dag
 print('Epoch in dagen',nu)
 print('JD', dagen)
@@ -196,20 +196,21 @@ for ip in planeet:
    # azimut = epicykel() + hoeklentepunt;
    # Teken de cirkel met planeet
    naam = planeet[ip]['naam']
-   print(ip,naam)
          
    if (naam == 'Zon'):
-       azimut = cirkelbaan(nu,siderischjaar) + LMST*360.0
+       # azimut = cirkelbaan(nu,siderischjaar) + LMST*360.0
+       azimut = lokaletijd*360.0-180.0
        w = 36
-       print('Zon op ',azimut)
+       print('Zon op azimut',azimut)
    elif (naam == 'Maan'):
-       azimut = cirkelbaan(nu,synodischemaand) + LMST*360.0
+       azimut = cirkelbaan(nu,synodischemaand) + LMST*360.0 - 180.0
        w = 36
-       print('Maan op ',azimut)
+       print('Maan op azimut',azimut)
    else:
        azimut = epicykel(tijd,planeet[ip]['T'],planeet[ip]['a'],
                          planeet[ip]['e'],planeet[ip]['lengteperi'],planeet[ip]['epochperi'])
        w = 16
+       print(naam,'op azimut', azimut)
    r += w+1;
    teken_planeet(r,azimut,w,naam)
 
