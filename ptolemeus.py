@@ -14,6 +14,7 @@ tropischemaand  = 27.32158 # Tijd tussen doorgangen van de Maan door de ecliptic
 siderischemaand = 27.32166 
 synodischemaand = 29.53059 # Tijd tussen nieuwe manen
 draconitischemaand = 27,21222 # Tijd tussen twee knopendoorgangen
+ashelling = 23.45 # Hoek tussen de rotatieas en de normaal op het baanvlak (de ecliptica)
 # Waar staat de waarnemer?
 lengte020 = 4.9 # Graden oosterlengte
 tweepi    = 6.28
@@ -125,6 +126,8 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     equans = 2 * deferent
     # Anomalie gezien van de equans is een lineaire functie van de tijd
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
+    print ('   tijd', tijd)
+    print ('   tijd sinds periapsis',(tijd-tijdperiapsis))
     equansx = straal * math.cos(equansanomalie) - deferent
     equansy = straal * math.sin(equansanomalie)
     # De epicykel, de cirkel op de cirkel
@@ -161,10 +164,10 @@ def saros(tijd):
 
 # Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
 nu = time.time() / 86400  # nu, in dagen
-dagen = nu + 2440587.45833 # dagen, juliaanse datum
+juliaansedag = nu + 2440587.45833 # dagen, juliaanse datum
 tijd  = nu % 1 # Fractie van de dag
 print('Epoch in dagen',nu)
-print('JD', dagen)
+print('JD', juliaansedag)
 print('GMT          ', int(24*tijd), int((24*60*tijd)%60), (24*3600*tijd)%60)
 
 # Op 1/1/1970 was GMST 6 40 55 = 6,681944444
@@ -192,27 +195,30 @@ r += 1
 straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
 # Bereken posities van de planeten en teken de sfeer in
 for ip in planeet:
-   azimut = 0.0
-   # azimut = epicykel() + hoeklentepunt;
+   lengte = 0.0
+   # lengte = epicykel() + hoeklentepunt;
    # Teken de cirkel met planeet
    naam = planeet[ip]['naam']
          
    if (naam == 'Zon'):
-       # azimut = cirkelbaan(nu,siderischjaar) + LMST*360.0
-       azimut = lokaletijd*360.0-180.0
+       # lengte = cirkelbaan(nu,siderischjaar) + LMST*360.0
+       lengte = lokaletijd*360.0-180.0
        w = 36
-       print('Zon op azimut',azimut)
+       print('Zon ecliptische lengte',lengte)
    elif (naam == 'Maan'):
-       azimut = cirkelbaan(nu,synodischemaand) + LMST*360.0 - 180.0
+       lengte = cirkelbaan(nu,synodischemaand) + LMST*360.0 - 180.0
        w = 36
-       print('Maan op azimut',azimut)
+       print('Maan ecliptisce lengte',lengte)
    else:
-       azimut = epicykel(tijd,planeet[ip]['T'],planeet[ip]['a'],
-                         planeet[ip]['e'],planeet[ip]['lengteperi'],planeet[ip]['epochperi'])
+       print(naam)
+       lengte = epicykel(juliaansedag,
+                         planeet[ip]['T'],planeet[ip]['a'],
+                         planeet[ip]['e'],planeet[ip]['lengteperi'],
+                         planeet[ip]['epochperi'])
        w = 16
-       print(naam,'op azimut', azimut)
+       print(naam,'ecliptische lengte', lengte)
    r += w+1;
-   teken_planeet(r,azimut,w,naam)
+   teken_planeet(r,lengte,w,naam)
 
 # Teken de dierenriem
 w = 36
