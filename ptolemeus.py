@@ -214,7 +214,7 @@ for ip in planeet:
        lengte = epicykel(juliaansedag,
                          planeet[ip]['T'],planeet[ip]['a'],
                          planeet[ip]['e'],planeet[ip]['lengteperi'],
-                         planeet[ip]['epochperi'])
+                         planeet[ip]['epochperi']) + LMST*360.0
        w = 16
        print(naam,'ecliptische lengte', lengte)
    r += w+1;
