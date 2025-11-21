@@ -128,16 +128,20 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
     print ('   tijd', tijd)
     print ('   tijd sinds periapsis',(tijd-tijdperiapsis))
+    print ('   anomalie van de equans',equansanomalie/tweepi*180.0)
     equansx = straal * math.cos(equansanomalie) - deferent
     equansy = straal * math.sin(equansanomalie)
     # De epicykel, de cirkel op de cirkel
-    epianomalie = (tijd)/siderischjaar*tweepi
+    epianomalie = (tijd)/siderischjaar*tweepi % tweepi
+    print ('   anomalie van de epicykel',epianomalie/tweepi*180.0)
     straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
     equansx = equansx - straalaarde * math.cos(epianomalie)
     equansy = equansy - straalaarde * math.sin(epianomalie)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(equansy, equansx)
+    wareanomalie = math.atan2(equansy, equansx) / tweepi * 180.0
+    print ('   ware anomalie',wareanomalie)
     schijnbareanomalie = wareanomalie + lengteperiapsis
+    print ('   schijnbare anomalie',schijnbareanomalie)
     return schijnbareanomalie
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
