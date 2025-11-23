@@ -49,8 +49,8 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
                   (middenx+straal*schaal,middeny+straal*schaal)],outline=(0,0,0),fill=(250,200,200),width=1)
     draw.point([(middenx,middeny),(middenx,middeny-deferent*schaal)], fill=(0,0,0))
     draw.point([(middenx,middeny),(middenx,middeny-deferent*schaal)], fill=(0,0,0))
-    draw.text((middenx,middeny-deferent*schaal), 'Equans',anchor='ml',fill=(0,0,0))
-    draw.text((middenx,middeny+deferent*schaal), 'Aarde',anchor='ml',fill=(0,0,0))
+    draw.text((middenx,middeny-deferent*schaal), 'Equans',anchor='lm',fill=(0,0,0))
+    draw.text((middenx,middeny+deferent*schaal), 'Aarde',anchor='lm',fill=(0,0,0))
     # Anomalie gezien van de equans is een lineaire functie van de tijd
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
     print ('   tijd', tijd)
@@ -64,13 +64,13 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     epianomalie = (tijd)/siderischjaar*tweepi % tweepi
     print ('   anomalie van de epicykel',epianomalie/tweepi*180.0)
     straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
-    planeetx = defx - straalaarde * math.cos(epianomalie)
-    planeety = defy - straalaarde * math.sin(epianomalie)
+    planeetx = defx + straalaarde * math.cos(epianomalie)
+    planeety = defy + straalaarde * math.sin(epianomalie)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(defy, defx) / tweepi * 180.0
     print ('   ware anomalie',wareanomalie)
-    schijnbareanomalie = wareanomalie + lengteperiapsis
-    print ('   schijnbare anomalie',schijnbareanomalie)
+    ecliptischelengte = wareanomalie + lengteperiapsis
+    print ('   ecliptische lengte',ecliptischelengte)
     draw.ellipse([(middenx+(defx-straalaarde)*schaal,middeny+(defy-straalaarde)*schaal),
                   (middenx+(defx+straalaarde)*schaal,middeny+(defy+straalaarde)*schaal)],
                    outline=(0,0,0),fill=(200,200,250),width=1)
@@ -79,8 +79,8 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     draw.line([(middenx+defx*schaal,middeny+defy*schaal),
                (middenx+planeetx*schaal,middeny+planeety*schaal)],
                 fill=(0,0,0),width=1)
-    draw.text((middenx+planeetx*schaal,middeny+planeety*schaal),naam,anchor='ml',fill=(0,0,0))
-    return schijnbareanomalie
+    draw.text((middenx+planeetx*schaal,middeny+planeety*schaal),naam,anchor='lm',fill=(0,0,0))
+    return ecliptischelengte
 
 # Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
 nu = time.time() / 86400  # nu, in dagen
@@ -128,7 +128,6 @@ for ip in planeet:
                          planeet[ip]['T'],planeet[ip]['a'],
                          planeet[ip]['e'],planeet[ip]['lengteperi'],
                          planeet[ip]['epochperi']) + LMST*360.0
-       print(naam,'ecliptische lengte', lengte)
        filenaam = naam+'.png'
        diagram.save(filenaam)
        # diagram.show()

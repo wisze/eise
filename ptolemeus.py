@@ -50,7 +50,8 @@ def teken_aarde(straal):
    draw.ellipse([(sfeer_x-straal,sfeer_y-straal),
                  (sfeer_x+straal,sfeer_y+straal)],(0,250,0),(0,0,0),1)
 
-def teken_planeet(straal,phi,d,naam):
+def teken_planeet(straal,lengte,sidderisch,d,naam):
+   phi = lengte + sidderisch
    x = (straal-d/2)*math.sin(math.radians(phi))
    y = (straal-d/2)*math.cos(math.radians(phi))
    lcenter = 40 # grootte van ee plaatje voor een planeet
@@ -126,34 +127,30 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
     equans = 2 * deferent
     # Anomalie gezien van de equans is een lineaire functie van de tijd
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-    print ('   tijd', tijd)
-    print ('   tijd sinds periapsis',(tijd-tijdperiapsis))
-    print ('   anomalie van de equans',equansanomalie/tweepi*180.0)
+    # print ('   tijd', tijd)
+    # print ('   tijd sinds periapsis',(tijd-tijdperiapsis))
+    # print ('   anomalie van de equans',equansanomalie/tweepi*180.0)
     equansx = straal * math.cos(equansanomalie) - deferent
     equansy = straal * math.sin(equansanomalie)
     # De epicykel, de cirkel op de cirkel
     epianomalie = (tijd)/siderischjaar*tweepi % tweepi
-    print ('   anomalie van de epicykel',epianomalie/tweepi*180.0)
+    # print ('   anomalie van de epicykel',epianomalie/tweepi*180.0)
     straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
     equansx = equansx - straalaarde * math.cos(epianomalie)
     equansy = equansy - straalaarde * math.sin(epianomalie)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx) / tweepi * 180.0
-    print ('   ware anomalie',wareanomalie)
-    schijnbareanomalie = wareanomalie + lengteperiapsis
-    print ('   schijnbare anomalie',schijnbareanomalie)
-    return schijnbareanomalie
+    print ('   ware anomalie',wareanomalie%360.0)
+    ecliptischelengte = wareanomalie + lengteperiapsis
+    print ('   ecliptische lengte',ecliptischelengte%360.0)
+    return ecliptischelengte
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
-def cirkelbaan(tijd,omlooptijd):
-   schijnbareanomalie = ( tijd / omlooptijd ) % 360.0
-   print('Schijnbare anomalie',schijnbareanomalie)
-   return schijnbareanomalie
-
-# Keplerbaan geeft de ware anomalie, de hoek van een planeet ten opzichte van het
-# lentepunt gezien vanuit de Zon.
-def keplerbaan(tijd):
-   return wareanomalie
+def cirkelbaan(tijd,omlooptijd,tperi,lengteperi):
+   print (tijd,tperi,omlooptijd,lengteperi)
+   ecliptischelengte = (((tijd - tperi ) / omlooptijd) * 360.0 + lengteperi ) % 360
+   print('   ecliptische lengte',ecliptischelengte)
+   return ecliptischelengte
 
 # Metonische cyclus, 19 jaar komt overeen met 235 maanden
 # Geeft het gouden getal 
@@ -203,26 +200,25 @@ for ip in planeet:
    # lengte = epicykel() + hoeklentepunt;
    # Teken de cirkel met planeet
    naam = planeet[ip]['naam']
+   print (naam)
          
    if (naam == 'Zon'):
-       # lengte = cirkelbaan(nu,siderischjaar) + LMST*360.0
-       lengte = lokaletijd*360.0-180.0
+       lengte = cirkelbaan(juliaansedag,planeet[ip]['T'],
+                           planeet[ip]['epochperi'],planeet[ip]['lengteperi'])
+       # lengte = lokaletijd*360.0-180.0
        w = 36
-       print('Zon ecliptische lengte',lengte)
    elif (naam == 'Maan'):
-       lengte = cirkelbaan(nu,synodischemaand) + LMST*360.0 - 180.0
+       lengte = cirkelbaan(juliaansedag,planeet[ip]['T'],
+                           planeet[ip]['epochperi'],planeet[ip]['lengteperi'])
        w = 36
-       print('Maan ecliptisce lengte',lengte)
    else:
-       print(naam)
        lengte = epicykel(juliaansedag,
                          planeet[ip]['T'],planeet[ip]['a'],
                          planeet[ip]['e'],planeet[ip]['lengteperi'],
-                         planeet[ip]['epochperi']) + LMST*360.0
+                         planeet[ip]['epochperi'])
        w = 16
-       print(naam,'ecliptische lengte', lengte)
    r += w+1;
-   teken_planeet(r,lengte,w,naam)
+   teken_planeet(r,lengte,LMST*360,w,naam)
 
 # Teken de dierenriem
 w = 36
