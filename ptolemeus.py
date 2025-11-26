@@ -8,16 +8,16 @@ from skyfield.api import position_of_radec, load_constellation_map
 from skyfield.framelib import ecliptic_frame
 
 # Verschillende konstanten voor jaar en maand
-tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
+# tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
 siderischjaar = 365.256363004 # Ongeveer 20 minuten langer dan tropisch jaar, ook 2000.0
-tropischemaand  = 27.32158 # Tijd tussen doorgangen van de Maan door de ecliptica
-siderischemaand = 27.32166 
+# tropischemaand  = 27.32158 # Tijd tussen doorgangen van de Maan door de ecliptica
+# siderischemaand = 27.32166 
 synodischemaand = 29.53059 # Tijd tussen nieuwe manen
-draconitischemaand = 27,21222 # Tijd tussen twee knopendoorgangen
+# draconitischemaand = 27,21222 # Tijd tussen twee knopendoorgangen
 ashelling = 23.45 # Hoek tussen de rotatieas en de normaal op het baanvlak (de ecliptica)
 # Waar staat de waarnemer?
 lengte020 = 4.9 # Graden oosterlengte
-tweepi    = 6.28
+tweepi    = 6.28318530718
 
 # Lees baanelementen uit csv
 planeet = []
@@ -139,12 +139,13 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
     return ecliptischelengte
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
-def cirkelbaan(tijd,omlooptijd,tperi,lengteperi):
-   wareanomalie = ((tijd - tperi) / omlooptijd) * 360.0
-   print('   ware anmomalie',wareanomalie)
-   ecliptischelengte = (wareanomalie + lengteperi ) % 360
-   print('   ecliptische lengte',ecliptischelengte)
-   return ecliptischelengte
+# De equans wordt hier buiten beschouwing gelaten
+def cirkelbaan(tijd,omlooptijd,lengteperiapsis,tijdperiapsis):
+    wareanomalie = ((tijd-tijdperiapsis)/omlooptijd)*360.0
+    print('   ware anmomalie',wareanomalie)
+    ecliptischelengte = (wareanomalie+lengteperiapsis )%360
+    print('   ecliptische lengte',ecliptischelengte)
+    return ecliptischelengte
 
 # Metonische cyclus, 19 jaar komt overeen met 235 maanden
 # Geeft het gouden getal 
@@ -197,11 +198,11 @@ for naam in planeet:
          
    if (naam == 'Zon'):
        lengte = cirkelbaan(jd,element[naam]['T'],
-                           element[naam]['epochperi'],element[naam]['lengteperi'])
+                           element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 36
    elif (naam == 'Maan'):
        lengte = cirkelbaan(jd,synodischemaand,
-                           element[naam]['epochperi'],element[naam]['lengteperi'])
+                           element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 36
    else:
        lengte = epicykel(jd,element[naam]['T'],
