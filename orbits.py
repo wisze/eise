@@ -12,9 +12,8 @@ eph   = load('de421.bsp')
 earth = eph['earth']
 sun   = eph['sun']
 
-planeten = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus',
-           'Zon': 'Sun', 'Mars': 'Mars',
-           'Jupiter': 'Jupiter barycenter', 'Saturnus': 'Saturn barycenter'}
+planeten = {'Maan': 'Moon', 'Mercurius': 'Mercury', 'Venus': 'Venus', 'Zon': 'Sun',
+           'Mars': 'Mars', 'Jupiter': 'Jupiter barycenter', 'Saturnus': 'Saturn barycenter'}
 
 f = open('orbits.csv', 'w')
 print('naam,a,b,e,T,lon_node,l_peri,omega_peri,t_peri',file=f)

@@ -20,21 +20,21 @@ lengte020 = 4.9 # Graden oosterlengte
 tweepi    = 6.28
 
 # Lees baanelementen uit csv
-planeet = {}
-ip = 0
+planeet = []
+element = {}
 with open('orbits.csv', 'r') as orbitfile:
     csv_reader = csv.DictReader(orbitfile)
     for orbit in csv_reader:
-       planeet[ip] = {}
-       planeet[ip]['naam'] = orbit['naam'].strip()
-       planeet[ip]['a'] = float(orbit['a'])
-       planeet[ip]['e'] = float(orbit['e'])
-       planeet[ip]['T'] = float(orbit['T'])
-       planeet[ip]['lengteperi'] = float(orbit['l_peri'])
-       planeet[ip]['epochperi']  = float(orbit['t_peri'])
-       ip += 1
-print(ip,' planeten in orbit file')
-       
+        naam = orbit['naam'].strip()
+        planeet.append(naam)
+        element[naam] = {}
+        element[naam]['a'] = float(orbit['a'])
+        element[naam]['b'] = float(orbit['b'])
+        element[naam]['e'] = float(orbit['e'])
+        element[naam]['T'] = float(orbit['T'])
+        element[naam]['lengteperi'] = float(orbit['l_peri'])
+        element[naam]['epochperi']  = float(orbit['t_peri'])
+
 # Fonts
 schwabacher   = ImageFont.truetype("lib/yswab.otf",size=20)
 schwabacher28 = ImageFont.truetype("lib/yswab.otf",size=28)
@@ -51,7 +51,7 @@ def teken_aarde(straal):
                  (sfeer_x+straal,sfeer_y+straal)],(0,250,0),(0,0,0),1)
 
 def teken_planeet(straal,lengte,sidderisch,d,naam):
-   phi = lengte + sidderisch
+   phi = sidderisch - lengte
    x = (straal-d/2)*math.sin(math.radians(phi))
    y = (straal-d/2)*math.cos(math.radians(phi))
    lcenter = 40 # grootte van ee plaatje voor een planeet
@@ -97,7 +97,6 @@ def teken_dierenriem(straal,phi,d):
       hoeks = phi - isterrenbeeld*30.0
       x = (straal-d/2-4)*math.sin(math.radians(hoeks))
       y = (straal-d/2-4)*math.cos(math.radians(hoeks))
-      # print (s,hoeks//1)
       sterrenbeeld = Image.new("RGBA", (sb,sb), (0, 0, 0, 0))
       teken = ImageDraw.Draw(sterrenbeeld)
       teken.text((sb/2,sb/2), sterrenbeelden[s],
@@ -116,30 +115,24 @@ def beschrijving(tekst):
     mask = tekstblok.split()[3]
     ikoon.paste(tekstblok,(0,0,400,400),mask)
    
-# Epicykel geeft de ware anomalie, de hoek van een planeet ten opzichte van het
+# Ptolemeus geeft de ecliptische lengte, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
-# De deferent is het middelpunt van de cirkelbaan
-# De planeet beweegt met constante hoeksnelheid rond de equans
-# Aarde, deferent en equans liggen op 1 lijn.
-def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis):
+# De deferent is het middelpunt van de cirkel. Deferent, equans en de Aarde liggen op 1 lijn.
+# Equans en Aarde lige op eccentriciteit*straal afstand van de deferent.
+# De planeet beweegt met constante hoeksnelheid gezien vanuit de de equans.
+def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
+    straal = (a+b)/2.0
     deferent = straal * excentriciteit
-    equans = 2 * deferent
     # Anomalie gezien van de equans is een lineaire functie van de tijd
     equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-    # print ('   tijd', tijd)
-    # print ('   tijd sinds periapsis',(tijd-tijdperiapsis))
-    # print ('   anomalie van de equans',equansanomalie/tweepi*180.0)
-    equansx = straal * math.cos(equansanomalie) - deferent
-    equansy = straal * math.sin(equansanomalie)
-    # De epicykel, de cirkel op de cirkel
-    epianomalie = (tijd)/siderischjaar*tweepi % tweepi
-    # print ('   anomalie van de epicykel',epianomalie/tweepi*180.0)
-    straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
-    equansx = equansx - straalaarde * math.cos(epianomalie)
-    equansy = equansy - straalaarde * math.sin(epianomalie)
+    equansx = straal*math.cos(equansanomalie)-deferent
+    equansy = straal*math.sin(equansanomalie)
+    # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
+    equansx = equansx - epi_straal*math.cos(epi_lengte/360.0*tweepi)
+    equansy = equansy - epi_straal*math.sin(epi_lengte/360.0*tweepi)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(equansy, equansx) / tweepi * 180.0
+    wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
     print ('   ware anomalie',wareanomalie%360.0)
     ecliptischelengte = wareanomalie + lengteperiapsis
     print ('   ecliptische lengte',ecliptischelengte%360.0)
@@ -147,8 +140,9 @@ def epicykel(tijd,omlooptijd,straal,excentriciteit,lengteperiapsis,tijdperiapsis
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
 def cirkelbaan(tijd,omlooptijd,tperi,lengteperi):
-   print (tijd,tperi,omlooptijd,lengteperi)
-   ecliptischelengte = (((tijd - tperi ) / omlooptijd) * 360.0 + lengteperi ) % 360
+   wareanomalie = ((tijd - tperi) / omlooptijd) * 360.0
+   print('   ware anmomalie',wareanomalie)
+   ecliptischelengte = (wareanomalie + lengteperi ) % 360
    print('   ecliptische lengte',ecliptischelengte)
    return ecliptischelengte
 
@@ -165,10 +159,10 @@ def saros(tijd):
 
 # Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
 nu = time.time() / 86400  # nu, in dagen
-juliaansedag = nu + 2440587.45833 # dagen, juliaanse datum
+jd = nu + 2440587.45833 # dagen, juliaanse datum
 tijd  = nu % 1 # Fractie van de dag
 print('Epoch in dagen',nu)
-print('JD', juliaansedag)
+print('JD', jd)
 print('GMT          ', int(24*tijd), int((24*60*tijd)%60), (24*3600*tijd)%60)
 
 # Op 1/1/1970 was GMST 6 40 55 = 6,681944444
@@ -193,29 +187,26 @@ teken_aarde(r)
 r += 1
 
 # De straal van de baan van de Zon moet eigenlijk netjes uit de baanelementen gehaald worden
-straalaarde = (149476014.0805783 + 149454602.05227306) / 2.0
+epi_lengte = cirkelbaan(jd,element['Zon']['T'],
+                        element['Zon']['epochperi'],element['Zon']['lengteperi'])
+epi_straal = (element['Zon']['a']+element['Zon']['b'])/2.0
 # Bereken posities van de planeten en teken de sfeer in
-for ip in planeet:
+for naam in planeet:
    lengte = 0.0
-   # lengte = epicykel() + hoeklentepunt;
-   # Teken de cirkel met planeet
-   naam = planeet[ip]['naam']
    print (naam)
          
    if (naam == 'Zon'):
-       lengte = cirkelbaan(juliaansedag,planeet[ip]['T'],
-                           planeet[ip]['epochperi'],planeet[ip]['lengteperi'])
-       # lengte = lokaletijd*360.0-180.0
+       lengte = cirkelbaan(jd,element[naam]['T'],
+                           element[naam]['epochperi'],element[naam]['lengteperi'])
        w = 36
    elif (naam == 'Maan'):
-       lengte = cirkelbaan(juliaansedag,planeet[ip]['T'],
-                           planeet[ip]['epochperi'],planeet[ip]['lengteperi'])
+       lengte = cirkelbaan(jd,synodischemaand,
+                           element[naam]['epochperi'],element[naam]['lengteperi'])
        w = 36
    else:
-       lengte = epicykel(juliaansedag,
-                         planeet[ip]['T'],planeet[ip]['a'],
-                         planeet[ip]['e'],planeet[ip]['lengteperi'],
-                         planeet[ip]['epochperi'])
+       lengte = epicykel(jd,element[naam]['T'],
+                         element[naam]['a'],element[naam]['b'],element[naam]['e'],
+                         element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 16
    r += w+1;
    teken_planeet(r,lengte,LMST*360,w,naam)
@@ -224,7 +215,7 @@ for ip in planeet:
 w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
-beschrijving("De planeten volgens Ptolemeus")
+beschrijving("Het is tijd voor vespers.")
 
 ikoon.save('ptolemeus.png')
 ikoon.show()
