@@ -121,7 +121,7 @@ def beschrijving(tekst):
 # De deferent is het middelpunt van de cirkel. Deferent, equans en de Aarde liggen op 1 lijn.
 # Equans en Aarde lige op eccentriciteit*straal afstand van de deferent.
 # De planeet beweegt met constante hoeksnelheid gezien vanuit de de equans.
-def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
+def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,epicykelstraal,epicykellengte):
     straal = (a+b)/2.0
     deferent = straal * excentriciteit
     # Anomalie gezien van de equans is een lineaire functie van de tijd
@@ -129,8 +129,8 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
     equansx = straal*math.cos(equansanomalie)-deferent
     equansy = straal*math.sin(equansanomalie)
     # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
-    equansx = equansx - epi_straal*math.cos(epi_lengte/360.0*tweepi)
-    equansy = equansy - epi_straal*math.sin(epi_lengte/360.0*tweepi)
+    equansx = equansx - epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
+    equansy = equansy - epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
     print ('   ware anomalie',wareanomalie%360.0)
@@ -140,8 +140,16 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
 # De equans wordt hier buiten beschouwing gelaten
-def cirkelbaan(tijd,omlooptijd,lengteperiapsis,tijdperiapsis):
-    wareanomalie = ((tijd-tijdperiapsis)/omlooptijd)*360.0
+def cirkelbaan(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
+    straal = (a+b)/2.0
+    deferent = straal * excentriciteit
+    # Anomalie gezien van de equans is een lineaire functie van de tijd
+    equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
+    equansx = straal*math.cos(equansanomalie)-deferent
+    equansy = straal*math.sin(equansanomalie)
+    # Hoek vanuit de Aarde
+    wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
+    # wareanomalie = ((tijd-tijdperiapsis)/omlooptijd)*360.0
     print('   ware anmomalie',wareanomalie)
     ecliptischelengte = (wareanomalie+lengteperiapsis )%360
     print('   ecliptische lengte',ecliptischelengte)
@@ -188,9 +196,10 @@ teken_aarde(r)
 r += 1
 
 # De straal van de baan van de Zon moet eigenlijk netjes uit de baanelementen gehaald worden
-epi_lengte = cirkelbaan(jd,element['Zon']['T'],
+epilengte = cirkelbaan(jd,element['Zon']['T'],
+                        element['Zon']['a'],element['Zon']['b'],element['Zon']['e'],
                         element['Zon']['epochperi'],element['Zon']['lengteperi'])
-epi_straal = (element['Zon']['a']+element['Zon']['b'])/2.0
+epistraal = (element['Zon']['a']+element['Zon']['b'])/2.0
 # Bereken posities van de planeten en teken de sfeer in
 for naam in planeet:
    lengte = 0.0
@@ -198,16 +207,19 @@ for naam in planeet:
          
    if (naam == 'Zon'):
        lengte = cirkelbaan(jd,element[naam]['T'],
+                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
                            element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 36
    elif (naam == 'Maan'):
        lengte = cirkelbaan(jd,synodischemaand,
+                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
                            element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 36
    else:
        lengte = epicykel(jd,element[naam]['T'],
                          element[naam]['a'],element[naam]['b'],element[naam]['e'],
-                         element[naam]['lengteperi'],element[naam]['epochperi'])
+                         element[naam]['lengteperi'],element[naam]['epochperi'],
+                         epistraal,epilengte)
        w = 16
    r += w+1;
    teken_planeet(r,lengte,LMST*360,w,naam)
