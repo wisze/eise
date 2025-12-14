@@ -108,10 +108,21 @@ def teken_dierenriem(straal,phi,d):
                                          int(sfeer_y-y-sb/2)),mask)
       isterrenbeeld += 1
 
+# Teken de beschrijving bovenaan aan de pagina.
 def beschrijving(tekst):
+    regellengte = 20
+    woorden = tekst.split()
+    zin = ''
+    regelnummer = 0
     tekstblok = Image.new("RGBA", (400,400), (0, 0, 0, 0))
-    zin = ImageDraw.Draw(tekstblok)
-    zin.text((200, 80), tekst, anchor="ms", fill=(0,0,0), font=schwabacher28)
+    for woord in woorden:
+        zin = zin + woord + ' '
+        if (len(zin) > regellengte):
+            print (len(zin),zin)
+            regel = ImageDraw.Draw(tekstblok)
+            regel.text((20, 80+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
+            zin = ''
+            regelnummer += 1
     mask = tekstblok.split()[3]
     ikoon.paste(tekstblok,(0,0,400,400),mask)
    
@@ -129,8 +140,8 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,ep
     equansx = straal*math.cos(equansanomalie)-deferent
     equansy = straal*math.sin(equansanomalie)
     # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
-    equansx = equansx + epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
-    equansy = equansy + epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
+    equansx = equansx - epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
+    equansy = equansy - epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
     print ('   ware anomalie',wareanomalie%360.0)
@@ -206,9 +217,6 @@ for naam in planeet:
    print (naam)
          
    if (naam == 'Zon'):
-       # lengte = cirkelbaan(jd,element[naam]['T'],
-       #                     element[naam]['a'],element[naam]['b'],element[naam]['e'],
-       #                     element[naam]['lengteperi'],element[naam]['epochperi'])
        lengte = epilengte
        w = 36
    elif (naam == 'Maan'):
@@ -229,7 +237,7 @@ for naam in planeet:
 w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
-beschrijving("Het is tijd voor vespers.")
+beschrijving("De planeten volgens Ptolemeus. Jupiter is retrograad. Het is tijd voor vespers.")
 
 ikoon.save('ptolemeus.png')
 ikoon.show()
