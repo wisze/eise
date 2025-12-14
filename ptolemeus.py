@@ -129,8 +129,8 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,ep
     equansx = straal*math.cos(equansanomalie)-deferent
     equansy = straal*math.sin(equansanomalie)
     # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
-    equansx = equansx - epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
-    equansy = equansy - epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
+    equansx = equansx + epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
+    equansy = equansy + epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
     # Hoek vanuit de Aarde
     wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
     print ('   ware anomalie',wareanomalie%360.0)
@@ -195,7 +195,7 @@ r = 38
 teken_aarde(r)
 r += 1
 
-# De straal van de baan van de Zon moet eigenlijk netjes uit de baanelementen gehaald worden
+# Eerst hebben we de lengte en afstand van de Zon van de Aarde nodig
 epilengte = cirkelbaan(jd,element['Zon']['T'],
                         element['Zon']['a'],element['Zon']['b'],element['Zon']['e'],
                         element['Zon']['epochperi'],element['Zon']['lengteperi'])
@@ -206,9 +206,10 @@ for naam in planeet:
    print (naam)
          
    if (naam == 'Zon'):
-       lengte = cirkelbaan(jd,element[naam]['T'],
-                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
-                           element[naam]['lengteperi'],element[naam]['epochperi'])
+       # lengte = cirkelbaan(jd,element[naam]['T'],
+       #                     element[naam]['a'],element[naam]['b'],element[naam]['e'],
+       #                     element[naam]['lengteperi'],element[naam]['epochperi'])
+       lengte = epilengte
        w = 36
    elif (naam == 'Maan'):
        lengte = cirkelbaan(jd,synodischemaand,
