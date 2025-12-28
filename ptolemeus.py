@@ -136,17 +136,21 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,ep
     straal = (a+b)/2.0
     deferent = straal * excentriciteit
     # Anomalie gezien van de equans is een lineaire functie van de tijd
-    equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-    equansx = straal*math.cos(equansanomalie)-deferent
-    equansy = straal*math.sin(equansanomalie)
+    ### toepassing van de lengte van de periapsis klopt nog steeds niet helemaal ###
+    defanomalie = ( (tijd-tijdperiapsis)/omlooptijd + lengteperiapsis/360.0 ) * tweepi
+    defx = straal*math.cos(defanomalie)-deferent
+    defy = straal*math.sin(defanomalie)
+    print ('   deferent anomalie',defanomalie%360.0)
+    print ('   epicykel anomalie',epicykellengte%360.0)
     # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
-    equansx = equansx - epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
-    equansy = equansy - epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
+    planeetx = defx + epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
+    planeety = defy + epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
+    wareanomalie = math.atan2(planeety, planeetx)/tweepi*360.0
     print ('   ware anomalie',wareanomalie%360.0)
-    ecliptischelengte = wareanomalie + lengteperiapsis
-    print ('   ecliptische lengte',ecliptischelengte%360.0)
+    # ecliptischelengte = wareanomalie + lengteperiapsis
+    ecliptischelengte = wareanomalie % 360.0
+    print ('   ecliptische lengte',ecliptischelengte)
     return ecliptischelengte
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
@@ -155,12 +159,11 @@ def cirkelbaan(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis)
     straal = (a+b)/2.0
     deferent = straal * excentriciteit
     # Anomalie gezien van de equans is een lineaire functie van de tijd
-    equansanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-    equansx = straal*math.cos(equansanomalie)-deferent
-    equansy = straal*math.sin(equansanomalie)
+    defanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
+    defx = straal*math.cos(defanomalie)-deferent
+    defy = straal*math.sin(defanomalie)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(equansy, equansx)/tweepi*360.0
-    # wareanomalie = ((tijd-tijdperiapsis)/omlooptijd)*360.0
+    wareanomalie = math.atan2(defy, defx)/tweepi*360.0
     print('   ware anmomalie',wareanomalie)
     ecliptischelengte = (wareanomalie+lengteperiapsis )%360
     print('   ecliptische lengte',ecliptischelengte)
@@ -207,6 +210,7 @@ teken_aarde(r)
 r += 1
 
 # Eerst hebben we de lengte en afstand van de Zon van de Aarde nodig
+print ('Zon')
 epilengte = cirkelbaan(jd,element['Zon']['T'],
                         element['Zon']['a'],element['Zon']['b'],element['Zon']['e'],
                         element['Zon']['epochperi'],element['Zon']['lengteperi'])

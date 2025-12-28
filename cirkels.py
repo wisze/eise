@@ -66,7 +66,7 @@ def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,ep
     planeetx = defx + epicykelstraal * math.cos(epicykellengte/360.0*tweepi)
     planeety = defy + epicykelstraal * math.sin(epicykellengte/360.0*tweepi)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(defy, defx) / tweepi * 180.0
+    wareanomalie = math.atan2(planeety, planeetx) / tweepi * 180.0
     print ('   ware anomalie',wareanomalie)
     ecliptischelengte = wareanomalie + lengteperiapsis
     print ('   ecliptische lengte',ecliptischelengte)
