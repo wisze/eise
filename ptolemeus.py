@@ -115,15 +115,18 @@ def beschrijving(tekst):
     woorden = tekst[1:].split()
     tekstblok = Image.new("RGBA", (480,400), (0, 0, 0, 0))
     kapitaal = ImageDraw.Draw(tekstblok)
-    kapitaal.text((20, 160), initiaal, anchor="ls", fill=(0,0,0), font=init)
+    kapitaal.text((20, 150), initiaal, anchor="ls", fill=(0,0,0), font=init)
     zin = ''
     regelnummer = 0
     for woord in woorden:
         zin = zin + woord + ' '
         if (len(zin) > regellengte):
+            inspring = 20
+            if (regelnummer < 3):
+                inspring = 100
             print (len(zin),zin)
             regel = ImageDraw.Draw(tekstblok)
-            regel.text((100, 100+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
+            regel.text((inspring, 100+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
             zin = ''
             regelnummer += 1
     mask = tekstblok.split()[3]
@@ -244,7 +247,7 @@ for naam in planeet:
 w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
-beschrijving("De planeten volgens Ptolemeus. Jupiter is retrograad. Het is tijd voor vespers.")
+beschrijving("De planeten volgens Ptolemeus. Jupiter is retrograad. Maan is in ascendant. Het is tijd voor vespers.")
 
 ikoon.save('ptolemeus.png')
 ikoon.show()
