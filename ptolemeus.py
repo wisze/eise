@@ -38,7 +38,7 @@ with open('orbits.csv', 'r') as orbitfile:
 # Fonts
 schwabacher   = ImageFont.truetype("lib/yswab.otf",size=20)
 schwabacher28 = ImageFont.truetype("lib/yswab.otf",size=28)
-kapitaal      = ImageFont.truetype("lib/Yinit.otf",size=80)
+init          = ImageFont.truetype("lib/Yinit.otf",size=80)
 astrologicus  = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
@@ -111,20 +111,23 @@ def teken_dierenriem(straal,phi,d):
 # Teken de beschrijving bovenaan aan de pagina.
 def beschrijving(tekst):
     regellengte = 20
-    woorden = tekst.split()
+    initiaal = tekst[0]
+    woorden = tekst[1:].split()
+    tekstblok = Image.new("RGBA", (480,400), (0, 0, 0, 0))
+    kapitaal = ImageDraw.Draw(tekstblok)
+    kapitaal.text((20, 160), initiaal, anchor="ls", fill=(0,0,0), font=init)
     zin = ''
     regelnummer = 0
-    tekstblok = Image.new("RGBA", (400,400), (0, 0, 0, 0))
     for woord in woorden:
         zin = zin + woord + ' '
         if (len(zin) > regellengte):
             print (len(zin),zin)
             regel = ImageDraw.Draw(tekstblok)
-            regel.text((20, 80+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
+            regel.text((100, 100+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
             zin = ''
             regelnummer += 1
     mask = tekstblok.split()[3]
-    ikoon.paste(tekstblok,(0,0,400,400),mask)
+    ikoon.paste(tekstblok,(0,0,480,400),mask)
    
 # Ptolemeus geeft de ecliptische lengte, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
