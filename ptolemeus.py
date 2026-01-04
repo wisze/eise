@@ -8,12 +8,9 @@ from skyfield.api import position_of_radec, load_constellation_map
 from skyfield.framelib import ecliptic_frame
 
 # Verschillende konstanten voor jaar en maand
-# tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
+tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
 siderischjaar = 365.256363004 # Ongeveer 20 minuten langer dan tropisch jaar, ook 2000.0
-# tropischemaand  = 27.32158 # Tijd tussen doorgangen van de Maan door de ecliptica
-# siderischemaand = 27.32166 
 synodischemaand = 29.53059 # Tijd tussen nieuwe manen
-# draconitischemaand = 27,21222 # Tijd tussen twee knopendoorgangen
 ashelling = 23.45 # Hoek tussen de rotatieas en de normaal op het baanvlak (de ecliptica)
 # Waar staat de waarnemer?
 lengte020 = 4.9 # Graden oosterlengte
@@ -109,83 +106,103 @@ def teken_dierenriem(straal,phi,d):
       isterrenbeeld += 1
 
 # Teken de beschrijving bovenaan aan de pagina.
-def beschrijving(tekst):
-    regellengte = 20
-    initiaal = tekst[0]
-    woorden = tekst[1:].split()
+def beschrijving(regels):
+    regellengte = 26
+    initiaal = regels[0]
+    woorden = regels[1:].split()
     tekstblok = Image.new("RGBA", (480,400), (0, 0, 0, 0))
     kapitaal = ImageDraw.Draw(tekstblok)
     kapitaal.text((20, 150), initiaal, anchor="ls", fill=(0,0,0), font=init)
     zin = ''
     regelnummer = 0
+    inspring = 100
     for woord in woorden:
         zin = zin + woord + ' '
         if (len(zin) > regellengte):
-            inspring = 20
-            if (regelnummer < 3):
-                inspring = 100
+            if (regelnummer > 2):
+                inspring = 20
             print (len(zin),zin)
             regel = ImageDraw.Draw(tekstblok)
-            regel.text((inspring, 100+regelnummer*24), zin, anchor="ls", fill=(0,0,0), font=schwabacher28)
+            regel.text((inspring, 100+regelnummer*24), zin, anchor="ls",
+                       fill=(0,0,0), font=schwabacher28)
             zin = ''
             regelnummer += 1
+    regel = ImageDraw.Draw(tekstblok)
+    regel.text((inspring, 100+regelnummer*24), zin, anchor="ls",
+               fill=(0,0,0), font=schwabacher28)
     mask = tekstblok.split()[3]
     ikoon.paste(tekstblok,(0,0,480,400),mask)
-   
+
+# Geef de naam van de maanfase afhankelijk van de hoek met de zon
+def maanfase(f):
+    fasehoek = f % 360
+    fasenaam = ""
+    if (fasehoek <  15.0  or fasehoek > 345.0) : fasename = "Nieuwe Maan. "
+    if (fasehoek <  75.0 and fasehoek >  15.0) : fasenaam = "Eerste kwartier. "
+    if (fasehoek < 105.0 and fasehoek >  75.0) : fasenaam = "Halve wassende Maan. "
+    if (fasehoek < 165.0 and fasehoek > 105.0) : fasenaam = "Wassende Maan. "
+    if (fasehoek < 195.0 and fasehoek > 165.0) : fasenaam = "Volle Maan. "
+    if (fasehoek < 255.0 and fasehoek > 195.0) : fasenaam = "Krimpende Maan. "
+    if (fasehoek < 285.0 and fasehoek > 255.0) : fasenaam = "Halve krimpende Maan. "
+    if (fasehoek < 345.0 and fasehoek > 285.0) : fasenaam = "Laatste kwartier. "
+    return fasenaam
+
+# Doorkomst, opkomst en ondergangstijden
+# def doorkomst(t, r, d):
+#     Hnul = math.acos(-math.sin(math.radians(52.0))*math.sin(math.radians(d)) /
+#                       math.cos(math.radians(52.0))*math.cos(math.radians(d)))
+#     transit = (r/360.0*24.0)%24
+#     print ('   transit', transit)
+#     op    = (transit-Hnul/tweepi*24.0)%24.0
+#     onder = (transit+Hnul/tweepi*24.0)%24.0
+#     return op, onder
+    
 # Ptolemeus geeft de ecliptische lengte, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
 # De deferent is het middelpunt van de cirkel. Deferent, equans en de Aarde liggen op 1 lijn.
 # Equans en Aarde lige op eccentriciteit*straal afstand van de deferent.
 # De planeet beweegt met constante hoeksnelheid gezien vanuit de de equans.
-def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,epicykelstraal,epicykellengte):
+def epicykel(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis,
+             epicykelstraal,epicykellengte):
     straal = (a+b)/2.0
     deferent = straal * excentriciteit
     # Anomalie gezien van de equans is een lineaire functie van de tijd
-    ### toepassing van de lengte van de periapsis klopt nog steeds niet helemaal ###
-    defanomalie = ( (tijd-tijdperiapsis)/omlooptijd + lengteperiapsis/360.0 ) * tweepi
-    defx = straal*math.cos(defanomalie)-deferent
-    defy = straal*math.sin(defanomalie)
-    print ('   deferent anomalie',defanomalie%360.0)
-    print ('   epicykel anomalie',epicykellengte%360.0)
+    equansanomalie = ((tijd-tijdperiapsis)/omlooptijd)*tweepi  + math.radians(lengteperiapsis)
+    # Maar we gaan voor nu uit van een gewone cirkelbaan zonder gebruik van equans
+    aardex = straal * math.cos(equansanomalie)
+    aardey = straal * math.sin(equansanomalie)
+    wareanomalie = math.degrees(math.atan2(aardey, aardex))
+    print('   deferent anomalie',wareanomalie)
+    print('   epicykel anomalie',epicykellengte%360.0)
     # De epicykel. De cirkel op de cirkel. Berekend buiten deze functie
-    planeetx = defx + epicykelstraal*math.cos(epicykellengte/360.0*tweepi)
-    planeety = defy + epicykelstraal*math.sin(epicykellengte/360.0*tweepi)
+    planeetx = aardex + epicykelstraal*math.cos(math.radians(epicykellengte))
+    planeety = aardey + epicykelstraal*math.sin(math.radians(epicykellengte))
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(planeety, planeetx)/tweepi*360.0
-    print ('   ware anomalie',wareanomalie%360.0)
-    # ecliptischelengte = wareanomalie + lengteperiapsis
-    ecliptischelengte = wareanomalie % 360.0
+    wareanomalie = math.degrees(math.atan2(planeety, planeetx))
+    print('   ware anmomalie',wareanomalie)
+    ecliptischelengte = wareanomalie
     print ('   ecliptische lengte',ecliptischelengte)
     return ecliptischelengte
 
 # De Zon en de Maan beschijven een cirkelbaan om de Aarde
-# De equans wordt hier buiten beschouwing gelaten
 def cirkelbaan(tijd,omlooptijd,a,b,excentriciteit,lengteperiapsis,tijdperiapsis):
     straal = (a+b)/2.0
     deferent = straal * excentriciteit
     # Anomalie gezien van de equans is een lineaire functie van de tijd
-    defanomalie = (tijd-tijdperiapsis)/omlooptijd*tweepi
-    defx = straal*math.cos(defanomalie)-deferent
-    defy = straal*math.sin(defanomalie)
+    equansanomalie = ((tijd-tijdperiapsis)/omlooptijd)*tweepi
+    print('   equans anmomalie',math.degrees(equansanomalie))
+    # Maar we gaan voor nu uit van een gewone cirkelbaan zonder gebruik van equans
+    aardex = straal * math.cos(equansanomalie)
+    aardey = straal * math.sin(equansanomalie)
     # Hoek vanuit de Aarde
-    wareanomalie = math.atan2(defy, defx)/tweepi*360.0
-    print('   ware anmomalie',wareanomalie)
-    ecliptischelengte = (wareanomalie+lengteperiapsis )%360
+    wareanomalie = math.degrees(math.atan2(aardey, aardex))
+    print('   ware anomalie',wareanomalie)
+    ecliptischelengte = wareanomalie + lengteperiapsis
     print('   ecliptische lengte',ecliptischelengte)
     return ecliptischelengte
 
-# Metonische cyclus, 19 jaar komt overeen met 235 maanden
-# Geeft het gouden getal 
-def meton(tijd):
-   return metonfractie
-
-# Een Saros serie is een reeks bijna gelijke eclipses.
-# Na een periode 223 maanden, ongeveer 18 jaar, herhalen eclipses.
-# 6585,3 dagen
-def saros(tijd):
-   return sarosfractie
-
+#----------------------------------------------------------------------------
 # Bepaal lokale tijd en lokale sterrentijd, om zomertijd ellende te voorkomen alles vanaf gm
 nu = time.time() / 86400  # nu, in dagen
 jd = nu + 2440587.45833 # dagen, juliaanse datum
@@ -219,9 +236,11 @@ r += 1
 print ('Zon')
 epilengte = cirkelbaan(jd,element['Zon']['T'],
                         element['Zon']['a'],element['Zon']['b'],element['Zon']['e'],
-                        element['Zon']['epochperi'],element['Zon']['lengteperi'])
+                        element['Zon']['lengteperi'],element['Zon']['epochperi'])
 epistraal = (element['Zon']['a']+element['Zon']['b'])/2.0
 # Bereken posities van de planeten en teken de sfeer in
+ephemeriden = {}
+tekst = ""
 for naam in planeet:
    lengte = 0.0
    print (naam)
@@ -230,10 +249,11 @@ for naam in planeet:
        lengte = epilengte
        w = 36
    elif (naam == 'Maan'):
-       lengte = cirkelbaan(jd,synodischemaand,
+       lengte = cirkelbaan(jd,element[naam]['T'],
                            element[naam]['a'],element[naam]['b'],element[naam]['e'],
                            element[naam]['lengteperi'],element[naam]['epochperi'])
        w = 36
+       tekst += maanfase((lengte-epilengte)%360)
    else:
        lengte = epicykel(jd,element[naam]['T'],
                          element[naam]['a'],element[naam]['b'],element[naam]['e'],
@@ -243,11 +263,21 @@ for naam in planeet:
    r += w+1;
    teken_planeet(r,lengte,LMST*360,w,naam)
 
+   lengterad    = math.radians(lengte)
+   ashellingrad = math.radians(ashelling)
+   ephemeriden[naam] = {}
+   ephemeriden[naam]['klimming'] = math.degrees(math.atan2(math.sin(lengterad) *
+                                                math.cos(ashellingrad),math.cos(lengterad)))
+   ephemeriden[naam]['declinatie'] = math.degrees(math.asin(math.sin(ashellingrad) *
+                                                  math.sin(lengterad)))
+   print ('   klimming',ephemeriden[naam]['klimming'])
+   print ('   declinatie',ephemeriden[naam]['declinatie'])
+
 # Teken de dierenriem
 w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
-beschrijving("De planeten volgens Ptolemeus. Jupiter is retrograad. Maan is in ascendant. Het is tijd voor vespers.")
+beschrijving(tekst)
 
 ikoon.save('ptolemeus.png')
 ikoon.show()
