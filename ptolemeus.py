@@ -213,9 +213,9 @@ GMST0 =  ( int(nu) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
 print('GMT siderisch',int(24*GMST), int((24*60*GMST)%60), (24*3600*GMST)%60)
 
 # Lokale tijd en sterretijd in fracties van de dag
-lokaletijd = ( nu + lengte020/360.0 ) % 1 # Correctie voor locatie NL
+lokaletijd = ( nu - lengte020/360.0 ) % 1 # Correctie voor locatie NL
 print('Lokale zonnetijd',int(24*lokaletijd), int((24*60*lokaletijd)%60), (24*3600*lokaletijd)%60)
-LMST = ( ( nu + lengte020/360.0 ) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
+LMST = ( ( nu - lengte020/360.0 ) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
 print('Lokaal siderisch', int(24*LMST), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 # Begin met tekenen
