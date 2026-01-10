@@ -110,7 +110,7 @@ def teken_dierenriem(straal,phi,d):
 
 # Teken de beschrijving bovenaan aan de pagina.
 def beschrijving(regels):
-    regellengte = 26
+    regellengte = 24
     regelafstand = 26
     initiaal = regels[0]
     woorden = regels[1:].split()
@@ -119,7 +119,7 @@ def beschrijving(regels):
     kapitaal.text((20, 150), initiaal, anchor="ls", fill=(0,0,0), font=init)
     zin = ''
     regelnummer = 0
-    inspring = 100
+    inspring = 104
     for woord in woorden:
         zin = zin + woord + ' '
         if (regelnummer > 2): inspring = 20
@@ -154,8 +154,10 @@ def getijden(op,onder,t):
     top = int(op-t+0.5)
     tonder = int(onder-t+0.5)
     getijde = ""
-    if (t > op and t < onder): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
-    if (t > onder): getijde = "Nog "+uurnaam[top]+" uur tot lauden. "
+    if (t > op and t < onder and tonder > 0): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
+    if (t > onder and top > 0): getijde = "Nog "+uurnaam[top]+" uur tot lauden. "
+    if (top == 0): getijde = "Het is tijd voor lauden. Prijs de dag. "
+    if (tonder == 0): getijde = "Het is tijd voor vespers. Dank voor deze dag. "
     return getijde
 
 # Doorkomst, opkomst en ondergangstijden
@@ -263,7 +265,7 @@ for naam in planeet:
                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
                           element[naam]['lengteperi'],element[naam]['epochperi'],
                           zonstraal,zonlengte)
-        w = 16
+        w = 16 # de planeten worden kleiner getekend dan de Zon en Maan
     r += w+1; # straal van de sfeer verhogen met de grootte van de planeet plus 1
     teken_planeet(r,lengte,LMST*360,w,naam)
    
@@ -288,12 +290,10 @@ for naam in planeet:
         
     # Tijd tot opkomst wordt getoond vanaf 12 uur voor opkomst en
     # als de planeet meer dan een uur van de Zon staat
-    utop = int(op-lokaletijd*24+0.5)
-    if (utop > 0 and utop < 12 and rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
-        tekst += naam
-        tekst += " komt op over "
-        tekst += uurnaam[utop]
-        tekst += " uur."
+    utop = int(op+24-lokaletijd*24+0.5)%24
+    if (rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
+        if (utop > 0 and utop < 14): tekst += naam+" komt op over "+uurnaam[utop]+" uur."
+        if (utop == 0): tekst += naam+" in opkomst. "
 
 # Tijd tot het volgende gebed, nu nog gebaseerd op lokale tijd 
 tekst += getijden(zonop,zononder,lokaletijd*24.0)
