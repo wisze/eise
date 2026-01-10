@@ -13,7 +13,7 @@ siderischjaar = 365.256363004 # Ongeveer 20 minuten langer dan tropisch jaar, oo
 synodischemaand = 29.53059 # Tijd tussen nieuwe manen
 ashelling = 23.45 # Hoek tussen de rotatieas en de normaal op het baanvlak (de ecliptica)
 # Waar staat de waarnemer?
-lengte020 = -4.9 # Graden oosterlengte
+lengte020 = 4.9 # Graden oosterlengte
 tweepi    = 6.28318530718
 
 # Lees baanelementen uit csv
@@ -121,7 +121,6 @@ def beschrijving(regels):
         if (len(zin) > regellengte):
             if (regelnummer > 2):
                 inspring = 20
-            print (len(zin),zin)
             regel = ImageDraw.Draw(tekstblok)
             regel.text((inspring, 100+regelnummer*24), zin, anchor="ls",
                        fill=(0,0,0), font=schwabacher28)
@@ -151,11 +150,10 @@ def maanfase(f):
 def doorkomst(ra, dc):
     Hnul = math.acos(-math.sin(math.radians(52.0))*math.sin(math.radians(dc)) /
                       math.cos(math.radians(52.0))*math.cos(math.radians(dc)))
-    transit = (ra/15.0 - (GMST0+lengte020/360.0)*24.0 )%24.0
-    print ('   transit', transit)
+    transit = (ra/15.0-LMST0*24.0)%24.0
     op    = (transit-Hnul/tweepi*24.0)%24.0
     onder = (transit+Hnul/tweepi*24.0)%24.0
-    return op, onder
+    return transit, op, onder
     
 # Ptolemeus geeft de ecliptische lengte, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
@@ -209,13 +207,13 @@ print('GMT          ', int(24*tijd), int((24*60*tijd)%60), (24*3600*tijd)%60)
 # Op 1/1/1970 was GMST 6 40 55 = 6,681944444
 epochsiderisch = 6.681944444 / 24.0
 GMST = ( nu * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
-GMST0 =  ( int(nu) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
 print('GMT siderisch',int(24*GMST), int((24*60*GMST)%60), (24*3600*GMST)%60)
 
-# Lokale tijd en sterretijd in fracties van de dag
-lokaletijd = ( nu - lengte020/360.0 ) % 1 # Correctie voor locatie NL
+# Lokale tijd, sterretijd en sterretijd om middernacht in fracties van de dag
+lokaletijd = (nu-lengte020/360.0)%1 # Correctie voor locatie NL
 print('Lokale zonnetijd',int(24*lokaletijd), int((24*60*lokaletijd)%60), (24*3600*lokaletijd)%60)
-LMST = ( ( nu - lengte020/360.0 ) * (siderischjaar+1)/siderischjaar + epochsiderisch ) % 1
+LMST  = ((nu+lengte020/360.0) * (siderischjaar+1)/siderischjaar + epochsiderisch)%1
+LMST0 = ((int(nu)+lengte020/360.0) * (siderischjaar+1)/siderischjaar + epochsiderisch)%1
 print('Lokaal siderisch', int(24*LMST), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 # Begin met tekenen
@@ -237,35 +235,51 @@ epistraal = (element['Zon']['a']+element['Zon']['b'])/2.0
 # Bereken posities van de planeten en teken de sfeer in
 tekst = ""
 for naam in planeet:
-   lengte = 0.0
-   print (naam)
+    lengte = 0.0
+    w = 36 # grootte van zon en maan sfeer, planeten hebben grootte 16 (zie 
+    print (naam)
          
-   if (naam == 'Zon'):
-       lengte = epilengte
-       w = 36
-   elif (naam == 'Maan'):
-       lengte = cirkelbaan(jd,element[naam]['T'],
-                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
-                           element[naam]['lengteperi'],element[naam]['epochperi'])
-       w = 36
-       tekst += maanfase((lengte-epilengte)%360)
-   else:
-       lengte = epicykel(jd,element[naam]['T'],
-                         element[naam]['a'],element[naam]['b'],element[naam]['e'],
-                         element[naam]['lengteperi'],element[naam]['epochperi'],
-                         epistraal,epilengte)
-       w = 16
-   r += w+1;
-   teken_planeet(r,lengte,LMST*360,w,naam)
+    if (naam == 'Zon'):
+        lengte = epilengte
+        w = 36
+    elif (naam == 'Maan'):
+        lengte = cirkelbaan(jd,element[naam]['T'],
+                            element[naam]['a'],element[naam]['b'],element[naam]['e'],
+                            element[naam]['lengteperi'],element[naam]['epochperi'])
+        tekst += maanfase((lengte-epilengte)%360)
+    else:
+        lengte = epicykel(jd,element[naam]['T'],
+                          element[naam]['a'],element[naam]['b'],element[naam]['e'],
+                          element[naam]['lengteperi'],element[naam]['epochperi'],
+                          epistraal,epilengte)
+        w = 16
+    r += w+1;
+    teken_planeet(r,lengte,LMST*360,w,naam)
    
-   klimming = math.degrees(math.atan2(math.sin(math.radians(lengte)) *
-                                      math.cos(math.radians(ashelling)),
-                                      math.cos(math.radians(lengte))))
-   declinatie = math.degrees(math.asin(math.sin(math.radians(ashelling)) *
-                                       math.sin(math.radians(lengte))))
-   op, onder = doorkomst(klimming,declinatie)
-   print ('   opkomst',op)
-   print ('   ondergang',onder)
+    klimming = math.degrees(math.atan2(math.sin(math.radians(lengte)) *
+                                       math.cos(math.radians(ashelling)),
+                                       math.cos(math.radians(lengte))))
+    declinatie = math.degrees(math.asin(math.sin(math.radians(ashelling)) *
+                                        math.sin(math.radians(lengte))))
+    transit, op, onder = doorkomst(klimming,declinatie)
+    # print ('   transit',int(transit),(transit*60)%60)
+    print ('   opkomst',int(op),(op*60)%60)
+    # print ('   ondergang',int(onder),(op*60)%60)
+
+    # Tijd tot opkomst wordt getoond vanaf 6 uur voor opkomst
+    utop = int(op-lokaletijd*24+0.5)
+    if (utop > 0 and utop < 7):
+        tekst += naam
+        tekst += " komt op over "
+        tekst += str(utop)
+        tekst += " uur."
+        # +" komt op over "+utop+" uur. "
+
+    # Hoek van de planeet ten opzichte van de zon
+    rlengte = (lengte-epilengte)%360.0
+    if (rlengte > 170.0 and rlengte < 190.0):
+        tekst += naam
+        tekst += " is in oppositie. "
 
 # Teken de dierenriem
 w = 36
