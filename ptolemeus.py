@@ -38,6 +38,9 @@ schwabacher28 = ImageFont.truetype("lib/yswab.otf",size=28)
 init          = ImageFont.truetype("lib/Yinit.otf",size=80)
 astrologicus  = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
 
+# Uren
+uurnaam = {1:"een",2:"twee",3:"drie",4:"vier",5:"vijf",6:"zes",
+           7:"zeven",8:"acht",9:"negen",10:"tien",11:"elf",12:"twaalf"}
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
 sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
                   'Leeuw':'E','Maagd':'F','Weegschaal':'G','Kreeft':'H',
@@ -108,6 +111,7 @@ def teken_dierenriem(straal,phi,d):
 # Teken de beschrijving bovenaan aan de pagina.
 def beschrijving(regels):
     regellengte = 26
+    regelafstand = 26
     initiaal = regels[0]
     woorden = regels[1:].split()
     tekstblok = Image.new("RGBA", (480,400), (0, 0, 0, 0))
@@ -118,16 +122,15 @@ def beschrijving(regels):
     inspring = 100
     for woord in woorden:
         zin = zin + woord + ' '
+        if (regelnummer > 2): inspring = 20
         if (len(zin) > regellengte):
-            if (regelnummer > 2):
-                inspring = 20
             regel = ImageDraw.Draw(tekstblok)
-            regel.text((inspring, 100+regelnummer*24), zin, anchor="ls",
+            regel.text((inspring, 100+regelnummer*regelafstand), zin, anchor="ls",
                        fill=(0,0,0), font=schwabacher28)
             zin = ''
             regelnummer += 1
     regel = ImageDraw.Draw(tekstblok)
-    regel.text((inspring, 100+regelnummer*24), zin, anchor="ls",
+    regel.text((inspring, 100+regelnummer*regelafstand), zin, anchor="ls",
                fill=(0,0,0), font=schwabacher28)
     mask = tekstblok.split()[3]
     ikoon.paste(tekstblok,(0,0,480,400),mask)
@@ -145,6 +148,15 @@ def maanfase(f):
     if (fasehoek < 285.0 and fasehoek > 255.0) : fasenaam = "Halve krimpende Maan. "
     if (fasehoek < 345.0 and fasehoek > 285.0) : fasenaam = "Laatste kwartier. "
     return fasenaam
+
+#
+def getijden(op,onder,t):
+    top = int(op-t+0.5)
+    tonder = int(onder-t+0.5)
+    getijde = ""
+    if (t > op and t < onder): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
+    if (t > onder): getijde = "Nog "+uurnaam[top]+" uur tot lauden. "
+    return getijde
 
 # Doorkomst, opkomst en ondergangstijden
 def doorkomst(ra, dc):
@@ -228,10 +240,10 @@ r += 1
 
 # Eerst hebben we de lengte en afstand van de Zon van de Aarde nodig
 print ('Zon')
-epilengte = cirkelbaan(jd,element['Zon']['T'],
+zonlengte = cirkelbaan(jd,element['Zon']['T'],
                         element['Zon']['a'],element['Zon']['b'],element['Zon']['e'],
                         element['Zon']['lengteperi'],element['Zon']['epochperi'])
-epistraal = (element['Zon']['a']+element['Zon']['b'])/2.0
+zonstraal = (element['Zon']['a']+element['Zon']['b'])/2.0
 # Bereken posities van de planeten en teken de sfeer in
 tekst = ""
 for naam in planeet:
@@ -240,20 +252,19 @@ for naam in planeet:
     print (naam)
          
     if (naam == 'Zon'):
-        lengte = epilengte
-        w = 36
+        lengte = zonlengte
     elif (naam == 'Maan'):
         lengte = cirkelbaan(jd,element[naam]['T'],
                             element[naam]['a'],element[naam]['b'],element[naam]['e'],
                             element[naam]['lengteperi'],element[naam]['epochperi'])
-        tekst += maanfase((lengte-epilengte)%360)
+        tekst += maanfase((lengte-zonlengte)%360)
     else:
         lengte = epicykel(jd,element[naam]['T'],
                           element[naam]['a'],element[naam]['b'],element[naam]['e'],
                           element[naam]['lengteperi'],element[naam]['epochperi'],
-                          epistraal,epilengte)
+                          zonstraal,zonlengte)
         w = 16
-    r += w+1;
+    r += w+1; # straal van de sfeer verhogen met de grootte van de planeet plus 1
     teken_planeet(r,lengte,LMST*360,w,naam)
    
     klimming = math.degrees(math.atan2(math.sin(math.radians(lengte)) *
@@ -262,24 +273,30 @@ for naam in planeet:
     declinatie = math.degrees(math.asin(math.sin(math.radians(ashelling)) *
                                         math.sin(math.radians(lengte))))
     transit, op, onder = doorkomst(klimming,declinatie)
-    # print ('   transit',int(transit),(transit*60)%60)
-    print ('   opkomst',int(op),(op*60)%60)
-    # print ('   ondergang',int(onder),(op*60)%60)
-
-    # Tijd tot opkomst wordt getoond vanaf 6 uur voor opkomst
-    utop = int(op-lokaletijd*24+0.5)
-    if (utop > 0 and utop < 7):
-        tekst += naam
-        tekst += " komt op over "
-        tekst += str(utop)
-        tekst += " uur."
-        # +" komt op over "+utop+" uur. "
+    print ('   transit',int(transit),int((transit*60)%60))
+    print ('   opkomst',int(op),int((op*60)%60))
+    print ('   ondergang',int(onder),int((op*60)%60))
+    if (naam == 'Zon'):
+        zonop = op
+        zononder = onder
 
     # Hoek van de planeet ten opzichte van de zon
-    rlengte = (lengte-epilengte)%360.0
+    rlengte = (lengte-zonlengte)%360.0
     if (rlengte > 170.0 and rlengte < 190.0):
         tekst += naam
         tekst += " is in oppositie. "
+        
+    # Tijd tot opkomst wordt getoond vanaf 12 uur voor opkomst en
+    # als de planeet meer dan een uur van de Zon staat
+    utop = int(op-lokaletijd*24+0.5)
+    if (utop > 0 and utop < 12 and rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
+        tekst += naam
+        tekst += " komt op over "
+        tekst += uurnaam[utop]
+        tekst += " uur."
+
+# Tijd tot het volgende gebed, nu nog gebaseerd op lokale tijd 
+tekst += getijden(zonop,zononder,lokaletijd*24.0)
 
 # Teken de dierenriem
 w = 36
