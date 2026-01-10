@@ -292,8 +292,10 @@ for naam in planeet:
     # als de planeet meer dan een uur van de Zon staat
     utop = int(op+24-lokaletijd*24+0.5)%24
     if (rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
-        if (utop > 0 and utop < 14): tekst += naam+" komt op over "+uurnaam[utop]+" uur."
-        if (utop == 0): tekst += naam+" in opkomst. "
+        if (utop > 0 and utop < 14):
+            if (naam == "Maan"): tekst += "De "
+            tekst += naam+" komt op over "+uurnaam[utop]+" uur."
+        if (utop == 0): tekst += naam+" komt op. "
 
 # Tijd tot het volgende gebed, nu nog gebaseerd op lokale tijd 
 tekst += getijden(zonop,zononder,lokaletijd*24.0)
