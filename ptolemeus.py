@@ -1,4 +1,4 @@
-import sys, math, time, csv
+import os, sys, math, time, csv
 # from inky.auto import auto
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime, timezone
@@ -6,6 +6,9 @@ from skyfield import almanac
 from skyfield.api import load, wgs84, N, E, W, S
 from skyfield.api import position_of_radec, load_constellation_map
 from skyfield.framelib import ecliptic_frame
+
+# Directory 
+pad = os.path.dirname(os.path.realpath(__file__))
 
 # Verschillende konstanten voor jaar en maand
 tropischjaar  = 365.2421896 # Kalenderjaar. Geen constante, dit is de 2000.0 waarde
@@ -19,7 +22,7 @@ tweepi    = 6.28318530718
 # Lees baanelementen uit csv
 planeet = []
 element = {}
-with open('orbits.csv', 'r') as orbitfile:
+with open(pad+'/orbits.csv', 'r') as orbitfile:
     csv_reader = csv.DictReader(orbitfile)
     for orbit in csv_reader:
         naam = orbit['naam'].strip()
@@ -33,14 +36,15 @@ with open('orbits.csv', 'r') as orbitfile:
         element[naam]['epochperi']  = float(orbit['t_peri'])
 
 # Fonts
-schwabacher   = ImageFont.truetype("lib/yswab.otf",size=20)
-schwabacher28 = ImageFont.truetype("lib/yswab.otf",size=28)
-init          = ImageFont.truetype("lib/Yinit.otf",size=80)
-astrologicus  = ImageFont.truetype("lib/Astrologicus.ttf",size=40)
+schwabacher   = ImageFont.truetype(pad+'/lib/yswab.otf',size=20)
+schwabacher28 = ImageFont.truetype(pad+'/lib/yswab.otf',size=28)
+init          = ImageFont.truetype(pad+'/lib/Yinit.otf',size=80)
+astrologicus  = ImageFont.truetype(pad+'/lib/Astrologicus.ttf',size=40)
 
 # Uren
 uurnaam = {1:"een",2:"twee",3:"drie",4:"vier",5:"vijf",6:"zes",
-           7:"zeven",8:"acht",9:"negen",10:"tien",11:"elf",12:"twaalf"}
+           7:"zeven",8:"acht",9:"negen",10:"tien",11:"elf",12:"twaalf",
+           13:"dertien",14:"veertien",15:"vijftien",16:"zestien",17:"zeventien"}
 # Sterrenbeelden vanaf lentepunt met icoon uit Astrologicus font
 sterrenbeelden = {'Ram':'A','Stier':'B','Tweelingen':'C','Krab':'D',
                   'Leeuw':'E','Maagd':'F','Weegschaal':'G','Kreeft':'H',
@@ -149,12 +153,12 @@ def maanfase(f):
     if (fasehoek < 345.0 and fasehoek > 285.0) : fasenaam = "Laatste kwartier. "
     return fasenaam
 
-#
+# Tijden voor de volgende gebeden
 def getijden(op,onder,t):
-    top = int(op-t+0.5)
-    tonder = int(onder-t+0.5)
+    top = int(op-t+0.5)%24
+    tonder = int(onder-t+0.5)%24
     getijde = ""
-    if (t > op and t < onder and tonder > 0): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
+    if (t > op and t < onder): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
     if (t > onder and top > 0): getijde = "Nog "+uurnaam[top]+" uur tot lauden. "
     if (top == 0): getijde = "Het is tijd voor lauden. Prijs de dag. "
     if (tonder == 0): getijde = "Het is tijd voor vespers. Dank voor deze dag. "
@@ -168,7 +172,10 @@ def doorkomst(ra, dc):
     op    = (transit-Hnul/tweepi*24.0)%24.0
     onder = (transit+Hnul/tweepi*24.0)%24.0
     return transit, op, onder
-    
+
+#---------------------------------------------------------------------------------------
+# Baanberekeningen
+#
 # Ptolemeus geeft de ecliptische lengte, de hoek van een planeet ten opzichte van het
 # lentepunt gezien vanuit de Aarde, berekend met Ptolemaeaus epicykels.
 #
@@ -290,9 +297,11 @@ for naam in planeet:
         
     # Tijd tot opkomst wordt getoond vanaf 12 uur voor opkomst en
     # als de planeet meer dan een uur van de Zon staat
-    utop = int(op+24-lokaletijd*24+0.5)%24
+    utop = int(op-lokaletijd*24+0.5)%24
+    utonder = int(onder-lokaletijd*24+0.5)%24
+    print (naam,lokaletijd*24,utop,onder,utonder)
     if (rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
-        if (utop > 0 and utop < 14):
+        if (utop > 0 and utop < 12):
             if (naam == "Maan"): tekst += "De "
             tekst += naam+" komt op over "+uurnaam[utop]+" uur."
         if (utop == 0): tekst += naam+" komt op. "
