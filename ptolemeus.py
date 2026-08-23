@@ -158,7 +158,8 @@ def getijden(op,onder,t):
     top = int(op-t+0.5)%24
     tonder = int(onder-t+0.5)%24
     getijde = ""
-    if (t > op and t < onder): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
+    print (op,onder,t,top,tonder)
+    if (t > op and t < onder and tonder != 0): getijde = "Nog "+uurnaam[tonder]+" uur tot vespers. "
     if (t > onder and top > 0): getijde = "Nog "+uurnaam[top]+" uur tot lauden. "
     if (top == 0): getijde = "Het is tijd voor lauden. Prijs de dag. "
     if (tonder == 0): getijde = "Het is tijd voor vespers. Dank voor deze dag. "
@@ -299,7 +300,7 @@ for naam in planeet:
     # als de planeet meer dan een uur van de Zon staat
     utop = int(op-lokaletijd*24+0.5)%24
     utonder = int(onder-lokaletijd*24+0.5)%24
-    print (naam,lokaletijd*24,utop,onder,utonder)
+    # print (naam,lokaletijd*24,utop,onder,utonder)
     if (rlengte > 15.0 and rlengte < 345.0 and naam != "Zon"):
         if (utop > 0 and utop < 12):
             if (naam == "Maan"): tekst += "De "
@@ -315,9 +316,11 @@ r += w+1
 teken_dierenriem(r,LMST*360,w)
 beschrijving(tekst)
 
-ikoon.save('ptolemeus.png')
-ikoon.show()
-# ikoon_gedraaid = ikoon.rotate((270), expand=True,center=(ikoon.width/2,ikoon.height/2))
+print (tekst)
+
+ikoon.save(pad+'/ptolemeus.png')
+# ikoon.show()
+# ikoon_gedraaid = ikoon.rotate((90), expand=True,center=(ikoon.width/2,ikoon.height/2))
 # display = auto()
 # display.set_image(ikoon_gedraaid)
 # display.show()
