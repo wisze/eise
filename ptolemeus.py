@@ -1,4 +1,4 @@
-import os, sys, math, time, csv
+import os, sys, math, time, csv, random
 # from inky.auto import auto
 from PIL import Image, ImageDraw, ImageFont
 from datetime import datetime, timezone
@@ -114,19 +114,20 @@ def teken_dierenriem(straal,phi,d):
 
 # Teken de beschrijving bovenaan aan de pagina.
 def beschrijving(regels):
-    regellengte = 24
+    regellengte = 20
     regelafstand = 26
+    linkermarge = 50
     initiaal = regels[0]
     woorden = regels[1:].split()
     tekstblok = Image.new("RGBA", (480,400), (0, 0, 0, 0))
     kapitaal = ImageDraw.Draw(tekstblok)
-    kapitaal.text((20, 150), initiaal, anchor="ls", fill=(0,0,0), font=init)
+    kapitaal.text((linkermarge, 150), initiaal, anchor="ls", fill=(0,0,0), font=init)
     zin = ''
     regelnummer = 0
-    inspring = 104
+    inspring = 84+linkermarge
     for woord in woorden:
         zin = zin + woord + ' '
-        if (regelnummer > 2): inspring = 20
+        if (regelnummer > 2): inspring = linkermarge
         if (len(zin) > regellengte):
             regel = ImageDraw.Draw(tekstblok)
             regel.text((inspring, 100+regelnummer*regelafstand), zin, anchor="ls",
@@ -239,7 +240,7 @@ LMST0 = ((int(nu)+lengte020/360.0) * (siderischjaar+1)/siderischjaar + epochside
 print('Lokaal siderisch', int(24*LMST), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 # Begin met tekenen
-ikoon = Image.new("RGB",(480,800), (255,255,255))
+ikoon = Image.new("RGBA",(480,800), (255,255,200,255))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height-10 - ikoon.width/2 # Een klein stukje oven de rand 
 draw = ImageDraw.Draw(ikoon)
@@ -315,6 +316,15 @@ w = 36
 r += w+1
 teken_dierenriem(r,LMST*360,w)
 beschrijving(tekst)
+
+# Marginalia, pak een willekeurig plaatje en plak linksonder
+marginalia = os.listdir(pad+'/marginalia')
+mno = int(random.uniform(0,len(marginalia)))
+margefile = Image.open(pad+'/marginalia/'+marginalia[mno])
+mb, mh = margefile.size
+marge = margefile.resize((150,200))
+mb, mh = marge.size
+ikoon.paste(marge,(0,800-mh),marge)
 
 print (tekst)
 
