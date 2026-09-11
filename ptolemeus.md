@@ -26,7 +26,7 @@ staat in dit model in een punt aan de andere kant van het middelpunt op dezelfde
 afstand als de equans. De deferent is dus een cirkelbaan, maar met een eccentriciteit.
 Voor Mars ziet dat er zo uit.
 
-![Mars baan en positie volgens het model van Ptolemeus](Mars.png)
+![Mars baan en positie volgens het model van Ptolemeus](pics/Mars.png)
 
 Het programma berekent alle planeetposities en tekent ze op een e-ink scherm.
 Het scherm laat de planeten zien in hun sferen zoals deze rond de Aarde 
@@ -36,4 +36,4 @@ de tekens van de Dierenriem.
 De posities van de planeten aan de hemel wordt berekend met Ptolemeus'
 epicirkels.
 
-![Beeld van de planeten in hun sferen](ptolemeus.png)
+![Beeld van de planeten in hun sferen](pics/ptolemeus.png)

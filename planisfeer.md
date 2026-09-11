@@ -9,5 +9,5 @@ uit een file waarin de locaties van de dischtsbijzijnde kometen staan.
 
 Alles wordt als svg file uitgevoerd.
 
-![afbeelding van de eise planisfeer, webversie](planisfeer.svg)
+![afbeelding van de eise planisfeer, webversie](pics/planisfeer.svg)
  
