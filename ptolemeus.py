@@ -240,7 +240,7 @@ LMST0 = ((int(nu)+lengte020/360.0) * (siderischjaar+1)/siderischjaar + epochside
 print('Lokaal siderisch', int(24*LMST), int((24*60*LMST)%60), (24*3600*LMST)%60)
 
 # Begin met tekenen
-ikoon = Image.new("RGBA",(480,800), (255,255,200,255))
+ikoon = Image.new("RGBA",(480,800), (255,255,225,255))
 sfeer_x = ikoon.width/2
 sfeer_y = ikoon.height-10 - ikoon.width/2 # Een klein stukje oven de rand 
 draw = ImageDraw.Draw(ikoon)
@@ -322,7 +322,9 @@ marginalia = os.listdir(pad+'/marginalia')
 mno = int(random.uniform(0,len(marginalia)))
 margefile = Image.open(pad+'/marginalia/'+marginalia[mno])
 mb, mh = margefile.size
-marge = margefile.resize((150,200))
+schaal = max(mb/150,mh/200) # Schaal het plaatje binnen een box van 150x200
+print (mb, mh, schaal)
+marge = margefile.resize((int(mb/schaal),int(mh/schaal)))
 mb, mh = marge.size
 ikoon.paste(marge,(0,800-mh),marge)
 
