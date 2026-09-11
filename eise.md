@@ -33,7 +33,7 @@ I call it **eise** after the builder of [the most beautiful
 planetarium in the world](https://www.planetarium-friesland.nl/).
 
 ![image of the eise planetmap on an e-ink on a raspberry pi
- zero](pics/20211019_171928.jpg)
+ zero](pics/eise004.jpg)
 
 [More on my wiki](http://wiki.wisze.org/doku.php/en/ruimte/eise),
 [meer op mijn wiki(nl)](http://wiki.wisze.org/doku.php/nl/ruimte/eise)
