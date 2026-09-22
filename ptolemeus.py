@@ -319,14 +319,14 @@ beschrijving(tekst)
 
 # Marginalia, pak een willekeurig plaatje en plak linksonder
 marginalia = os.listdir(pad+'/marginalia')
-mno = int(random.uniform(0,len(marginalia)))
+mno = int(random.uniform(0,len(marginalia))) # Random selectie van 1 plaatje
 margefile = Image.open(pad+'/marginalia/'+marginalia[mno])
 mb, mh = margefile.size
-schaal = max(mb/150,mh/200) # Schaal het plaatje binnen een box van 150x200
+schaal = max(mb/150,mh/300) # Schaal het plaatje binnen een box van 150x200
 print (mb, mh, schaal)
 marge = margefile.resize((int(mb/schaal),int(mh/schaal)))
 mb, mh = marge.size
-ikoon.paste(marge,(0,800-mh),marge)
+ikoon.paste(marge,(0,785-mh),marge)
 
 print (tekst)
 
